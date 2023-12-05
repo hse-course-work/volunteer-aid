@@ -1,0 +1,16 @@
+/.idea/
+/*/target/
+/target/
+/project/**/target/
+/.vscode/
+/.bsp/
+/**/.bloop/
+/project/**/.bloop/
+
+/.metals/
+metals.sbt
+
+/lib/
+/log/
+*.log
+*.sc

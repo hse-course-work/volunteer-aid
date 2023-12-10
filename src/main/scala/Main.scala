@@ -1,29 +1,47 @@
-import org.http4s.blaze.server.BlazeServerBuilder
-import org.http4s.server.Router
+
 import api.MainRouter
 import api.user.UserRouter
-import sttp.tapir.server.http4s.Http4sServerInterpreter
-import zio.{Scope, Task, ZIO}
+import cats.syntax.all._
+import org.http4s._
+import org.http4s.blaze.server.BlazeServerBuilder
+import org.http4s.server.Router
+import repositories.DbConfigs
+import repositories.user.UserDaoImpl
+import services.user.UserServiceImpl
+import sttp.tapir.server.http4s.ztapir.ZHttp4sServerInterpreter
+import sttp.tapir.swagger.bundle.SwaggerInterpreter
+import sttp.tapir.ztapir._
 import zio.interop.catz._
+import zio.{Scope, Task, ZIO}
+
 object Main extends zio.ZIOAppDefault {
 
+    def swaggerRoutes(routes: ZServerEndpoint[Any, Any]): HttpRoutes[Task] =
+      ZHttp4sServerInterpreter()
+        .from(SwaggerInterpreter().fromServerEndpoints(List(routes), "Our pets", "1.0"))
+        .toRoutes
 
   def run: ZIO[Environment with Scope, Any, Any] = {
-    val interpreter = Http4sServerInterpreter[Task]()
 
-    val userRouter = new UserRouter
+    val userDao = new UserDaoImpl(DbConfigs.xa)
+    val userService = new UserServiceImpl(userDao)
+    val userRouter = new UserRouter(userService)
     val mainRouter = new MainRouter(userRouter)
 
-    val routes = interpreter.toRoutes(List(
-      mainRouter.getUser,
-//      mainRouter.getTask
-    ))
 
-    BlazeServerBuilder[Task]
-      .withHttpApp(Router(("/", routes)).orNotFound)
-      .bindHttp(8080, "0.0.0.0")
-      .serve
-      .compile
-      .drain
+    val routes: HttpRoutes[Task] = ZHttp4sServerInterpreter()
+      .from(List(mainRouter.getUser))
+      .toRoutes
+
+
+    ZIO.executor.flatMap(executor =>
+      BlazeServerBuilder[Task]
+        .withExecutionContext(executor.asExecutionContext)
+        .bindHttp(8080, "localhost")
+        .withHttpApp(Router("/" -> (routes <+> swaggerRoutes(mainRouter.getUser))).orNotFound)
+        .serve
+        .compile
+        .drain
+    )
   }
 }

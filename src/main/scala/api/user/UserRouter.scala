@@ -1,18 +1,19 @@
 package api.user
 
+import models.{Email, UserId}
 import models.responses.GetUserResponse
-
-import sttp.tapir.server.ServerEndpoint.Full
+import services.user.UserService
+import sttp.tapir.ztapir._
 import zio.{Task, ULayer, URLayer, ZIO, ZLayer}
 
-class UserRouter extends UserApi {
+class UserRouter(userService: UserService) extends UserApi {
 
-  def getUser: Full[Unit, Unit, Int, String, GetUserResponse, Any, Task] = get.serverLogic(UserRouter.getUser)
+  def getUser: ZServerEndpoint[Any, Any] =
+    get.zServerLogic(id =>
+      userService.getUser(UserId(id))
+        .map(user => GetUserResponse(s"user: ${user.id}", Email.unwrap(user.email)))
+        .catchAll(e => ZIO.fail(e.getMessage))
+    )
 
 }
 
-object UserRouter {
-
-  def getUser(id: Int): Task[Either[String, GetUserResponse]] =
-    ZIO.succeed(Right(GetUserResponse(s"example_user_$id", "hello@world.com")))
-}

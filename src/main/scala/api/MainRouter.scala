@@ -2,15 +2,13 @@ package api
 
 import api.user.UserRouter
 import models.responses.GetUserResponse
-
-import sttp.tapir.server.ServerEndpoint
-import sttp.tapir.server.ServerEndpoint.Full
+import sttp.tapir.ztapir.ZServerEndpoint
 import zio.Task
 
 class MainRouter(userRouter: UserRouter) {
 
   // user
-  def getUser: Full[Unit, Unit, Int, String, GetUserResponse, Any, Task]  =
+  def getUser: ZServerEndpoint[Any, Any] =
     userRouter.getUser
 
   // tasks

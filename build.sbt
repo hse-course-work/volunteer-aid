@@ -4,22 +4,21 @@ ThisBuild / scalaVersion := "2.13.12"
 
 val AkkaVersion = "2.7.0"
 val AkkaHttpVersion = "10.5.2"
-val TapirVersion = "0.17.7"
+
+val tapirVersion = "1.7.3"
 
 libraryDependencies ++= Seq(
-  "dev.zio" %% "zio" % "2.0.6",
-  "dev.zio" %% "zio-streams" % "2.0.6",
-  "org.http4s" %% "http4s-blaze-server" % "0.23.14",
+  "dev.zio" %% "zio" % "2.0.13",
+  "dev.zio" %% "zio-streams" % "2.0.13",
 
-
-  "com.softwaremill.sttp.tapir" %% "tapir-http4s-server" % "1.4.0",
-  "com.softwaremill.sttp.tapir" %% "tapir-core" % "1.2.10",
   "com.softwaremill.sttp.tapir" %% "tapir-json-circe" % "1.2.10",
 
-  //  "com.softwaremill.sttp.tapir" %% "tapir-zio" % "0.17.7",
-  //  "com.softwaremill.sttp.tapir" %% "tapir-zio-http4s-server" % "0.17.7",
 
-  "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-bundle" % "1.9.3",
+  "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-bundle" % tapirVersion,
+  "com.softwaremill.sttp.tapir" %% "tapir-http4s-server-zio" % tapirVersion,
+  "com.softwaremill.sttp.tapir" %% "tapir-json-circe" % tapirVersion,
+  "com.softwaremill.sttp.tapir" %% "tapir-redoc-bundle" % tapirVersion,
+  "org.http4s" %% "http4s-blaze-server" % "0.23.14",
 
   "ch.qos.logback" % "logback-classic" % "1.4.7",
 
@@ -30,7 +29,11 @@ libraryDependencies ++= Seq(
 
 
   "dev.zio" %% "zio-interop-cats" % "23.1.0.0",
-  "dev.zio" %% "zio-prelude" % "1.0.0-RC21"
+  "dev.zio" %% "zio-prelude" % "1.0.0-RC21",
+
+  // doobie
+  "org.tpolecat" %% "doobie-core" % "1.0.0-RC4",
+  "org.tpolecat" %% "doobie-postgres"  % "1.0.0-RC4",
 
 )
 

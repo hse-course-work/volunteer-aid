@@ -43,6 +43,17 @@ lazy val root = (project in file("."))
 //    idePackagePrefix := Some("ru.hse.coursework")
   )
 
+Compile / mainClass := Some("Main")
+assembly / mainClass := Some("Main")
+
+assemblyMergeStrategy in assembly := {
+  case PathList("META-INF", "maven", "org.webjars", "swagger-ui", "pom.properties") => MergeStrategy.first
+//  case "pom.properties" => MergeStrategy.first
+  case PathList("META-INF", "MANIFEST.MF") => MergeStrategy.discard
+  case x => MergeStrategy.first
+}
+
+assemblyJarName in assembly := "volunteer-aid.jar"
 
 scalacOptions ++= Seq(
   "-deprecation", // Emit warning and location for usages of deprecated APIs.

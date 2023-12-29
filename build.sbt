@@ -53,7 +53,7 @@ assemblyMergeStrategy in assembly := {
   case x => MergeStrategy.first
 }
 
-assemblyJarName in assembly := "volunteer-aid.jar"
+assembly / assemblyJarName := "volunteer-aid.jar"
 
 scalacOptions ++= Seq(
   "-deprecation", // Emit warning and location for usages of deprecated APIs.

@@ -40,8 +40,6 @@ jobs:
       run: |
         scp target/scala-2.13/volunteer-aid.jar "${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}:/home/${{ secrets.SERVER_USERNAME }}/"
         
-    - name: Restart Java JAR
+    - name: Restart JAR
       run: |
-        ssh ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} "pkill -f volunteer-aid.jar"
         ssh ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} "java -jar volunteer-aid.jar &"
-    

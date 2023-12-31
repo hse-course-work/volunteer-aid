@@ -40,6 +40,9 @@ jobs:
       run: |
         scp target/scala-2.13/volunteer-aid.jar "${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}:/home/${{ secrets.SERVER_USERNAME }}/"
         
-    - name: Restart JAR
-      run: |
-        ssh ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} "java -jar volunteer-aid.jar"
+
+    - name: Stop running application
+      run: ssh "${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}" "killall -q java ; echo 'Stopped old application'"
+    
+    - name: Start new application
+      run: ssh "${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}" "nohup java -jar /home/${{ secrets.SERVER_USERNAME }}/volunteer-aid.jar" 

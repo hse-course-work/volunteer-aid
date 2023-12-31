@@ -18,7 +18,7 @@ object Main extends zio.ZIOAppDefault {
 
     def swaggerRoutes(routes: ZServerEndpoint[Any, Any]): HttpRoutes[Task] =
       ZHttp4sServerInterpreter()
-        .from(SwaggerInterpreter().fromServerEndpoints(List(routes), "Our pets", "1.0"))
+        .from(SwaggerInterpreter().fromServerEndpoints(List(routes), "Volunteer Aid", "1.0"))
         .toRoutes
 
   def run: ZIO[Environment with Scope, Any, Any] = {

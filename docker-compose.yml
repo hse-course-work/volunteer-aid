@@ -3,7 +3,8 @@ version: '3.8'
 services:
   scala-app:
     build:
-      context: ./scala
+      context: .
+      dockerfile: /scala/Dockerfile
     ports:
       - "8080:8080"
 

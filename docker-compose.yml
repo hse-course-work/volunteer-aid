@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  scala-app:
+    build:
+      context: ./scala
+    ports:
+      - "8080:8080"
+
+  nginx:
+    build:
+      context: ./nginx
+    ports:
+      - "80:80"

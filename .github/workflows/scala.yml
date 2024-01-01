@@ -29,13 +29,13 @@ jobs:
     - name: Build Scala project
       run: sbt assembly
 
-    - name: Build Docker image
-      run: |
-        docker build -t volunteer-aid .
+    - name: Build Docker images using docker-compose
+      run: docker-compose -f docker-compose.yml build
         
-    - name: Save Docker image as tar
+    - name: Save Docker images as tar
       run: |
-        docker save -o volunteer-aid.tar volunteer-aid
+        docker save -o scala-app.tar scala-app
+        docker save -o nginx.tar nginx
 
     - name: Use SSH key to access server
       run: |
@@ -44,12 +44,20 @@ jobs:
         chmod 600 ~/.ssh/id_rsa
         ssh-keyscan -H "${{ secrets.SERVER_HOST }}" >> ~/.ssh/known_hosts
         
-    - name: Copy Docker image to server
+    - name: Copy Docker images to server
       run: |
-        scp volunteer-aid.tar "${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}:/home/${{ secrets.SERVER_USERNAME }}/"
-        
-    - name: Restart Docker container
+        scp scala-app.tar "${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}:/home/${{ secrets.SERVER_USERNAME }}/"
+        scp nginx.tar "${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}:/home/${{ secrets.SERVER_USERNAME }}/"
+        scp docker-compose.yml "${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}:/home/${{ secrets.SERVER_USERNAME }}/"  
+
+    - name: Load Docker images
       run: |
-        ssh ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}
-        sudo docker load -i volunteer-aid.tar
-        sudo docker run -d --name volunteer-aid -p 8080:8080 volunteer-aid:latest
+        ssh ${{ secrets.SERVER_USERNAME }}@{{ secrets.SERVER_HOST }} 'docker load -i scala-app.tar'
+        ssh ${{ secrets.SERVER_USERNAME }}@{{ secrets.SERVER_HOST }} 'docker load -i nginx.tar'
+
+    - name: Start Docker containers
+      run: |
+        ssh ${{ secrets.SERVER_USERNAME }}@{{ secrets.SERVER_HOST }} 'docker-compose up -d' 
+
+    - name: Check Docker Compose containers
+      run: docker-compose ps

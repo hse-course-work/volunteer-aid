@@ -2,7 +2,7 @@
 FROM nginx:latest
 
 # Копирование конфигурационных файлов NGINX внутрь контейнера
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx/nginx.conf /etc/nginx/conf.d/default.conf
 
 # Опционально: копирование статических файлов, если они нужны для NGINX
 # COPY static-content /usr/share/nginx/html

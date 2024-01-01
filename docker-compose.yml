@@ -4,12 +4,13 @@ services:
   scala-app:
     build:
       context: .
-      dockerfile: /scala/Dockerfile
+      dockerfile: scala/Dockerfile
     ports:
       - "8080:8080"
 
   nginx:
     build:
-      context: ./nginx
+      context: .
+      dockerfile: nginx/Dockerfile
     ports:
       - "80:80"

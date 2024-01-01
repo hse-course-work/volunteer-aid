@@ -51,5 +51,5 @@ jobs:
     - name: Restart Docker container
       run: |
         ssh ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}
-        docker load -i/home/${{ secrets.SERVER_USERNAME }}/volunteer-aid.tar
+        docker load -i /home/${{ secrets.SERVER_USERNAME }}/volunteer-aid.tar
         docker run -d --name scala-container -p 8080:8080 volunteer-aid:latest

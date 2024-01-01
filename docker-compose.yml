@@ -2,6 +2,7 @@ version: '3.8'
 
 services:
   scala-app:
+    container_name: scala-app
     build:
       context: .
       dockerfile: scala/Dockerfile
@@ -9,6 +10,7 @@ services:
       - "8080:8080"
 
   nginx:
+    container_name: nginx
     build:
       context: .
       dockerfile: nginx/Dockerfile

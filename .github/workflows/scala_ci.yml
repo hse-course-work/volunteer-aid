@@ -30,12 +30,12 @@ jobs:
       run: sbt assembly
 
     - name: Build Docker images using docker-compose
-      run: docker-compose -f docker-compose.yml build
+      run: docker-compose build
         
     - name: Save Docker images as tar
       run: |
-        docker save -o scala-app.tar scala-app
-        docker save -o nginx.tar nginx
+        docker save -o scala-app.tar volunteer-aid-scala-app
+        docker save -o nginx.tar volunteer-aid-nginx
 
     - name: Use SSH key to access server
       run: |

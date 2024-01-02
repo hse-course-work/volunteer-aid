@@ -52,13 +52,13 @@ jobs:
 
     - name: Load Docker images
       run: |
-        ssh ${{ secrets.SERVER_USERNAME }}@{{ secrets.SERVER_HOST }} 'sudo docker load -i scala-app.tar'
-        ssh ${{ secrets.SERVER_USERNAME }}@{{ secrets.SERVER_HOST }} 'sudo docker load -i nginx.tar'
+        ssh ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} 'sudo docker load -i scala-app.tar'
+        ssh ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} 'sudo docker load -i nginx.tar'
 
     - name: Start Docker containers
       run: |
-        ssh ${{ secrets.SERVER_USERNAME }}@{{ secrets.SERVER_HOST }} 'sudo docker-compose up -d' 
+        ssh ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} 'sudo docker-compose up -d' 
 
     - name: Check Docker Compose containers
       run: |
-        ssh ${{ secrets.SERVER_USERNAME }}@{{ secrets.SERVER_HOST }} 'sudo docker-compose ps'
+        ssh ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} 'sudo docker-compose ps'

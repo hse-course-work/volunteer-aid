@@ -34,8 +34,8 @@ jobs:
         
     - name: Save Docker images as tar
       run: |
-        docker save -o scala-app.tar volunteer-aid-scala-app
-        docker save -o nginx.tar volunteer-aid-nginx
+        docker save -o scala-app.tar scala-app
+        docker save -o nginx.tar aid-nginx
 
     - name: Use SSH key to access server
       run: |

@@ -57,7 +57,8 @@ jobs:
 
     - name: Start Docker containers
       run: |
-        ssh ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} 'sudo docker-compose up -d' 
+        ssh ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} 'sudo docker run --name scala-app -d scala-app:latest' 
+        ssh ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} 'sudo docker run --name nginx -d nginx:latest'
 
     - name: Check Docker Compose containers
       run: |

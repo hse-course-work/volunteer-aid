@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  scala-app:
+    container_name: scala-app
+    image: scala-app:latest
+    build:
+      context: .
+      dockerfile: scala/Dockerfile
+    ports:
+      - "8080:8080"
+
+  nginx:
+    container_name: nginx
+    image: nginx:latest
+    build:
+      context: .
+      dockerfile: nginx/Dockerfile
+    ports:
+      - "80:80"

@@ -1,0 +1,65 @@
+name: Scala CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up JDK 11
+      uses: actions/setup-java@v3
+      with:
+        java-version: '11'
+        distribution: 'temurin'
+        cache: 'sbt'
+
+    - name: Run tests
+      run: sbt test
+
+    - name: Build Scala project
+      run: sbt assembly
+
+    - name: Build Docker images using docker-compose
+      run: docker-compose build
+        
+    - name: Save Docker images as tar
+      run: |
+        docker save -o scala-app.tar scala-app
+        docker save -o nginx.tar nginx
+
+    - name: Use SSH key to access server
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H "${{ secrets.SERVER_HOST }}" >> ~/.ssh/known_hosts
+        
+    - name: Copy Docker images to server
+      run: |
+        scp scala-app.tar "${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}:/home/${{ secrets.SERVER_USERNAME }}/"
+        scp nginx.tar "${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}:/home/${{ secrets.SERVER_USERNAME }}/"
+#        scp docker-compose.yml "${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}:/home/${{ secrets.SERVER_USERNAME }}/"
+
+    - name: Load Docker images
+      run: |
+        ssh ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} 'sudo docker load -i scala-app.tar'
+        ssh ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} 'sudo docker load -i nginx.tar'
+
+    - name: Start Docker containers
+      run: |
+        ssh ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} 'sudo docker run --name scala-app -d scala-app:latest' 
+        ssh ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} 'sudo docker run --name nginx -d nginx:latest'
+
+    - name: Check Docker Compose containers
+      run: |
+        ssh ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} 'sudo docker-compose ps'

@@ -46,7 +46,7 @@ lazy val root = (project in file("."))
 Compile / mainClass := Some("Main")
 assembly / mainClass := Some("Main")
 
-assemblyMergeStrategy in assembly := {
+assembly / assemblyMergeStrategy := {
   case PathList("META-INF", "maven", "org.webjars", "swagger-ui", "pom.properties") => MergeStrategy.first
 //  case "pom.properties" => MergeStrategy.first
   case PathList("META-INF", "MANIFEST.MF") => MergeStrategy.discard

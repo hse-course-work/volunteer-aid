@@ -51,6 +51,7 @@ jobs:
       run: |
         ssh ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} 'sudo docker load -i volunteer-aid-image.tar'
 
-    - name: Start Docker containers
+    - name: Start Docker container
       run: |
         ssh ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} 'sudo docker run -p 8080:8080 --name volunteer-aid -d volunteer-aid-image'
+#       подумать насчёт перезапуска контейнера а не поднятия нового

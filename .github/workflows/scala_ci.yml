@@ -29,13 +29,12 @@ jobs:
     - name: Build Scala project
       run: sbt assembly
 
-    - name: Build Docker images using docker-compose
-      run: docker-compose build
+    - name: Build Docker image
+      run: docker build -t volunteer-aid-image .
         
-    - name: Save Docker images as tar
+    - name: Save Docker image as tar
       run: |
-        docker save -o scala-app.tar scala-app
-        docker save -o nginx.tar nginx
+        docker save -o volunteer-aid-image.tar volunteer-aid-image
 
     - name: Use SSH key to access server
       run: |
@@ -44,22 +43,15 @@ jobs:
         chmod 600 ~/.ssh/id_rsa
         ssh-keyscan -H "${{ secrets.SERVER_HOST }}" >> ~/.ssh/known_hosts
         
-    - name: Copy Docker images to server
+    - name: Copy Docker image to server
       run: |
-        scp scala-app.tar "${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}:/home/${{ secrets.SERVER_USERNAME }}/"
-        scp nginx.tar "${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}:/home/${{ secrets.SERVER_USERNAME }}/"
-#        scp docker-compose.yml "${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}:/home/${{ secrets.SERVER_USERNAME }}/"
+        scp volunteer-aid-image.tar "${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}:/home/${{ secrets.SERVER_USERNAME }}/"
 
-    - name: Load Docker images
+    - name: Load Docker image
       run: |
-        ssh ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} 'sudo docker load -i scala-app.tar'
-        ssh ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} 'sudo docker load -i nginx.tar'
+        ssh ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} 'sudo docker load -i volunteer-aid-image.tar'
 
-    - name: Start Docker containers
+    - name: Start Docker container
       run: |
-        ssh ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} 'sudo docker run --name scala-app -d scala-app:latest' 
-        ssh ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} 'sudo docker run --name nginx -d nginx:latest'
-
-    - name: Check Docker Compose containers
-      run: |
-        ssh ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} 'sudo docker-compose ps'
+        ssh ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} 'sudo docker run -p 8080:8080 --name volunteer-aid -d volunteer-aid-image'
+#       подумать насчёт перезапуска контейнера а не поднятия нового

@@ -37,7 +37,7 @@ object Main extends zio.ZIOAppDefault {
     ZIO.executor.flatMap(executor =>
       BlazeServerBuilder[Task]
         .withExecutionContext(executor.asExecutionContext)
-        .bindHttp(8080, "localhost")
+        .bindHttp(8080, "0.0.0.0")
         .withHttpApp(Router("/" -> (routes <+> swaggerRoutes(mainRouter.getUser))).orNotFound)
         .serve
         .compile

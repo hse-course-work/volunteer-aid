@@ -36,7 +36,13 @@ libraryDependencies ++= Seq(
   "org.tpolecat" %% "doobie-core" % "1.0.0-RC4",
   "org.tpolecat" %% "doobie-postgres"  % "1.0.0-RC4",
 
-  "com.github.pureconfig" %% "pureconfig" % "0.17.1"
+  "com.github.pureconfig" %% "pureconfig" % "0.17.1",
+
+  // testcontainers
+  "io.github.scottweaver" %% "zio-2-0-testcontainers-postgresql" % "0.10.0",
+
+  "org.apache.directory.studio" % "org.apache.commons.io" % "2.4"
+
 
 )
 

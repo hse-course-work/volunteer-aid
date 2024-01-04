@@ -2,7 +2,7 @@ package repositories.user
 
 import doobie.{ConnectionIO, Get, Put, Read}
 import models.user.User
-import zio.Task
+import zio.{Task, URLayer, ZLayer}
 import doobie.util.transactor.Transactor
 import doobie.implicits._
 import doobie.util.meta.{MetaConstructors, SqlMetaInstances}
@@ -28,6 +28,8 @@ class UserDaoImpl(master: Transactor[Task]) extends UserDao {
 }
 
 object UserDaoImpl {
+
+  val live: URLayer[Transactor[Task], UserDao] = ZLayer.fromFunction(new UserDaoImpl(_))
 
   object Sql {
     import Implicits._

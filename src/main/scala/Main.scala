@@ -1,4 +1,3 @@
-
 import api.MainRouter
 import api.user.UserRouter
 import cats.syntax.all._
@@ -16,10 +15,13 @@ import zio.{Scope, Task, ZIO}
 
 object Main extends zio.ZIOAppDefault {
 
-    def swaggerRoutes(routes: ZServerEndpoint[Any, Any]): HttpRoutes[Task] =
-      ZHttp4sServerInterpreter()
-        .from(SwaggerInterpreter().fromServerEndpoints(List(routes), "Volunteer Aid", "1.0"))
-        .toRoutes
+  def swaggerRoutes(routes: ZServerEndpoint[Any, Any]): HttpRoutes[Task] =
+    ZHttp4sServerInterpreter()
+      .from(
+        SwaggerInterpreter()
+          .fromServerEndpoints(List(routes), "Volunteer Aid", "1.0")
+      )
+      .toRoutes
 
   def run: ZIO[Environment with Scope, Any, Any] = {
 
@@ -28,11 +30,9 @@ object Main extends zio.ZIOAppDefault {
     val userRouter = new UserRouter(userService)
     val mainRouter = new MainRouter(userRouter)
 
-
     val routes: HttpRoutes[Task] = ZHttp4sServerInterpreter()
       .from(List(mainRouter.getUser))
       .toRoutes
-
 
     ZIO.executor.flatMap(executor =>
       BlazeServerBuilder[Task]

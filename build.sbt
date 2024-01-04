@@ -30,10 +30,13 @@ libraryDependencies ++= Seq(
 
   "dev.zio" %% "zio-interop-cats" % "23.1.0.0",
   "dev.zio" %% "zio-prelude" % "1.0.0-RC21",
+  "dev.zio" %% "zio-test" % "2.0.15" % Test,
 
-  // doobie
+// doobie
   "org.tpolecat" %% "doobie-core" % "1.0.0-RC4",
   "org.tpolecat" %% "doobie-postgres"  % "1.0.0-RC4",
+
+  "com.github.pureconfig" %% "pureconfig" % "0.17.1"
 
 )
 

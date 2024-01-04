@@ -51,7 +51,14 @@ jobs:
       run: |
         ssh ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} 'sudo docker load -i volunteer-aid-image.tar'
 
+    - name: Stop Docker container if running
+      run: |
+        if ssh ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} 'sudo docker ps -a --filter "name=volunteer-aid" --format '{{.Names}}'' | grep -q "volunteer-aid"; then
+          echo "Stopping the volunteer-aid container..."
+          ssh ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} 'sudo docker stop volunteer-aid'
+        else
+          echo "The volunteer-aid container is not running."
+        fi
     - name: Start Docker container
       run: |
-        ssh ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} 'sudo docker run -p 8080:8080 --name volunteer-aid -d volunteer-aid-image'
-#       подумать насчёт перезапуска контейнера а не поднятия нового
+        ssh ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} 'sudo docker run -p 8080:8080 --name volunteer-aid -d --rm volunteer-aid-image'

@@ -12,7 +12,7 @@ import zio.interop.catz._
 
 class UserDaoImpl(master: Transactor[Task]) extends UserDao {
 
-  override def get(id: UserId): Task[User] =
+  def get(id: UserId): Task[User] =
     Sql.getUserById(id).transact(master)
       .map(user =>
         user.getOrElse(
@@ -26,6 +26,11 @@ class UserDaoImpl(master: Transactor[Task]) extends UserDao {
           )
         )
       )
+
+  def insert(user: User): Task[Unit] =
+    Sql.insertUser(user)
+      .transact(master)
+      .unit
 
 }
 
@@ -47,8 +52,8 @@ object UserDaoImpl {
 
     def insertUser(user: User): ConnectionIO[Int] =
       sql"""
-            INSERT INTO `users` (
-            `email`, `password`, `profile_description`, `login`, `photo_url`
+            INSERT INTO users (
+            email, hash_password, profile_description, login, photo_url
             )
             VALUES (
               ${user.email},

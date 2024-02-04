@@ -1,7 +1,7 @@
 import api.MainRouter
 import api.user.UserRouter
 import cats.syntax.all._
-import org.http4s._
+import org.http4s.{HttpRoutes, _}
 import org.http4s.blaze.server.BlazeServerBuilder
 import org.http4s.server.Router
 import repositories.DbConfigs
@@ -47,7 +47,7 @@ object Main extends zio.ZIOAppDefault {
   def run: ZIO[Environment with Scope, Any, Any] =
     (for {
       mainRouter <- ZIO.service[MainRouter]
-      routes = ZHttp4sServerInterpreter()
+      routes: HttpRoutes[Task] = ZHttp4sServerInterpreter()
         .from(List(mainRouter.getUser))
         .toRoutes
       _ <-

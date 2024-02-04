@@ -7,4 +7,6 @@ case class User(
     id: UserId,
     email: Email,
     hashPassword: Password,
-    profileDescription: Description)
+    profileDescription: Description,
+    login: String,
+    photoUrl: Option[String])

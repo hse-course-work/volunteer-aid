@@ -6,7 +6,7 @@ import doobie.implicits._
 import zio.interop.catz._
 import models.{Email, UserId}
 import models._
-import models.user.User
+import models.dao.user.User
 import repositories.DbConfigs
 import utils.{InitSchema, PostgresTestContainer}
 import zio.{EnvironmentTag, Scope, Task, ZIO, ZLayer}

@@ -19,11 +19,11 @@ object Main extends zio.ZIOAppDefault {
 
   type EnvIn = MainRouter
 
-  def swaggerRoutes(routes: ZServerEndpoint[Any, Any]): HttpRoutes[Task] =
+  def swaggerRoutes(routes: List[ZServerEndpoint[Any, Any]]): HttpRoutes[Task] =
     ZHttp4sServerInterpreter()
       .from(
         SwaggerInterpreter()
-          .fromServerEndpoints(List(routes), "Volunteer Aid", "1.0")
+          .fromServerEndpoints(routes, "Volunteer Aid", "1.1")
       )
       .toRoutes
 
@@ -47,15 +47,16 @@ object Main extends zio.ZIOAppDefault {
   def run: ZIO[Environment with Scope, Any, Any] =
     (for {
       mainRouter <- ZIO.service[MainRouter]
+      endpoints = List(mainRouter.getUser, mainRouter.authenticateUser, mainRouter.sigInUser)
       routes: HttpRoutes[Task] = ZHttp4sServerInterpreter()
-        .from(List(mainRouter.getUser))
+        .from(endpoints)
         .toRoutes
       _ <-
         ZIO.executor.flatMap(executor =>
           BlazeServerBuilder[Task]
             .withExecutionContext(executor.asExecutionContext)
             .bindHttp(8080, "0.0.0.0")
-            .withHttpApp(Router("/" -> (routes <+> swaggerRoutes(mainRouter.getUser))).orNotFound)
+            .withHttpApp(Router("/" -> (routes <+> swaggerRoutes(endpoints))).orNotFound)
             .serve
             .compile
             .drain

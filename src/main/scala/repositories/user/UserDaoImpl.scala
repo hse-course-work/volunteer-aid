@@ -1,12 +1,12 @@
 package repositories.user
 
 import doobie.{ConnectionIO, Get, Put, Read, Write}
-import models.user.User
 import zio.{Task, URLayer, ZLayer}
 import doobie.util.transactor.Transactor
 import doobie.implicits._
 import doobie.util.meta.{MetaConstructors, SqlMetaInstances}
 import models._
+import models.dao.user.User
 import repositories.user.UserDaoImpl.Sql
 import zio.interop.catz._
 

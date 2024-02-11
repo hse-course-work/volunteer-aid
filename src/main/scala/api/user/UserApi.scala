@@ -1,8 +1,10 @@
 package api.user
 
-import models.responses.GetUserResponse
-import models.user.User
-import sttp.tapir.PublicEndpoint
+import models.dao.user.User
+import models.requests.user.{AuthenticateUserRequest, SignInUserRequest}
+import models.responses.UserResponse
+import sttp.tapir.generic.auto._
+import io.circe.generic.auto._
 import sttp.tapir.ztapir._
 import sttp.tapir.generic.auto.{SchemaDerivation, schemaForCaseClass}
 import sttp.tapir.json.circe.{TapirJsonCirce, jsonBody}
@@ -14,7 +16,29 @@ trait UserApi {
     endpoint
       .get
       .in(defaultRoute / path[Int](name= "id"))
-      .out(jsonBody[GetUserResponse])
+      .out(statusCode)
+      .out(jsonBody[UserResponse])
+      .errorOut(statusCode)
+      .errorOut(stringBody)
+
+  protected val authenticate =
+    endpoint
+      .post
+      .in(defaultRoute / "authenticate")
+      .in(jsonBody[AuthenticateUserRequest])
+      .out(statusCode)
+      .out(jsonBody[UserResponse])
+      .errorOut(statusCode)
+      .errorOut(stringBody)
+
+  protected val signIn =
+    endpoint
+      .post
+      .in(defaultRoute / "sing-in")
+      .in(jsonBody[SignInUserRequest])
+      .out(statusCode)
+      .out(jsonBody[UserResponse])
+      .errorOut(statusCode)
       .errorOut(stringBody)
 }
 

@@ -1,4 +1,4 @@
-package models.user
+package models.dao.user
 
 import models._
 

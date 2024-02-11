@@ -1,7 +1,7 @@
 package repositories.user
 
 import models.UserId
-import models.user.User
+import models.dao.user.User
 import zio.Task
 
 trait UserDao {

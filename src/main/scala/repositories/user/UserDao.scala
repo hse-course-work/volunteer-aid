@@ -7,5 +7,6 @@ import zio.Task
 trait UserDao {
 
   def get(id: UserId): Task[User]
+  def insert(user: User): Task[Unit]
 
 }

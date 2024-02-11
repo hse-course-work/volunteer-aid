@@ -13,7 +13,7 @@ import zio.{EnvironmentTag, Scope, Task, ZIO, ZLayer}
 import zio.test.{Spec, TestEnvironment, ZIOSpecDefault}
 import zio.test.{assert, assertTrue}
 import zio.test.Assertion.{anything, equalTo, fails, isUnit}
-import zio.test.TestAspect.{sequential, before}
+import zio.test.TestAspect.{after, before, sequential}
 
 object UserDaoImplTest extends ZIOSpecDefault {
 
@@ -21,9 +21,15 @@ object UserDaoImplTest extends ZIOSpecDefault {
     (suite("UserDaoTest")(
       test0,
       test1
-    ) @@ before(initTable) @@ sequential)
+    ) @@ before(initTable) @@ after(cleanTable) @@ sequential)
       .provideLayer(makeLayer)
   }
+
+  private def cleanTable =
+    for {
+      xa <- ZIO.service[Transactor[Task]]
+      _ <- sql" DELETE FROM users ".update.run.transact(xa)
+    } yield ()
 
   def initTable =
     ZIO.serviceWithZIO[Transactor[Task]] { xa =>
@@ -52,23 +58,24 @@ object UserDaoImplTest extends ZIOSpecDefault {
           .query[String]
           .unique
           .transact(xa)
-        _ = println(result)
       } yield assertTrue(result == "users")
     }
   }
 
   def test1 = {
-    test("test1") {
+    test("successful insert and get user") {
       val testUser = User(
-        UserId(1),
         Email("example@mail.ru"),
         Password("pssword"),
-        Description("descripton")
+        Description("descripton"),
+        "default_description",
+        None
       )
       for {
         dao <- ZIO.service[UserDao]
-        user <- dao.get(UserId(0))
-      } yield assertTrue(user == testUser)
+        _ <- dao.insert(testUser)
+        user <- dao.get(UserId(1))
+      } yield assertTrue(user == testUser.copy(id = UserId(1)))
     }
   }
 }

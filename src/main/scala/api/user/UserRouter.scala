@@ -17,3 +17,10 @@ class UserRouter(userService: UserService) extends UserApi {
 
 }
 
+object UserRouter {
+
+  val live: URLayer[UserService, UserRouter] =
+    ZLayer.fromFunction(new UserRouter(_))
+
+}
+

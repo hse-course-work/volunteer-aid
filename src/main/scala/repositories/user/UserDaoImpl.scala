@@ -12,20 +12,11 @@ import zio.interop.catz._
 
 class UserDaoImpl(master: Transactor[Task]) extends UserDao {
 
-  def get(id: UserId): Task[User] =
+  def getById(id: UserId): Task[Option[User]] =
     Sql.getUserById(id).transact(master)
-      .map(user =>
-        user.getOrElse(
-          User(
-            UserId(1),
-            Email("example@mail.ru"),
-            Password("pssword"),
-            Description("descripton"),
-            "default_login",
-            None
-          )
-        )
-      )
+
+  def getByEmail(email: Email): Task[Option[User]] =
+    Sql.getUserByEmail(email).transact(master)
 
   def insert(user: User): Task[Unit] =
     Sql.insertUser(user)
@@ -46,6 +37,13 @@ object UserDaoImpl {
     def getUserById(id: UserId): ConnectionIO[Option[User]] =
       sql"""
             SELECT * FROM users WHERE id = $id
+         """
+        .query[User]
+        .option
+
+    def getUserByEmail(email: Email): ConnectionIO[Option[User]] =
+      sql"""
+            SELECT * FROM users WHERE emil = $email
          """
         .query[User]
         .option

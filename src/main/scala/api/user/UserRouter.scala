@@ -3,6 +3,7 @@ package api.user
 import models.{Email, UserId}
 import models.responses.UserResponse
 import services.user.UserService
+import services.user.UserService.UserException._
 import sttp.model.StatusCode
 import sttp.tapir.ztapir._
 import zio.{Task, ULayer, URLayer, ZIO, ZLayer}
@@ -14,7 +15,7 @@ class UserRouter(userService: UserService) extends UserApi {
       userService
         .getUser(UserId(id))
         .map(user =>
-          (StatusCode.Ok, UserResponse(id, Email.unwrap(user.email), s"user: ${user.id}", user.login, user.photoUrl))
+          (StatusCode.Ok, UserResponse.convert(user))
         )
         .catchAll(e => ZIO.fail((StatusCode.BadRequest, e.getMessage)))
     )
@@ -24,11 +25,11 @@ class UserRouter(userService: UserService) extends UserApi {
       userService
         .authenticate(request)
         .map(user => (StatusCode.Ok, user))
-        .catchAll(e =>
-          ZIO.fail(
-            (StatusCode.BadRequest, e.getMessage)
-          )
-        )
+        .catchAll {
+          case e: UserNotFound => ZIO.fail((StatusCode.NotFound, e.msg))
+          case e: InternalError => ZIO.fail((StatusCode.InternalServerError, e.msg))
+          case _ => ZIO.fail((StatusCode.InternalServerError, "server error"))
+        }
     )
 
   def signInUser: ZServerEndpoint[Any, Any] =

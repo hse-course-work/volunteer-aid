@@ -74,8 +74,8 @@ object UserDaoImplTest extends ZIOSpecDefault {
       for {
         dao <- ZIO.service[UserDao]
         _ <- dao.insert(testUser)
-        user <- dao.get(UserId(1))
-      } yield assertTrue(user == testUser.copy(id = UserId(1)))
+        user <- dao.getById(UserId(1))
+      } yield assertTrue(user.get == testUser.copy(id = UserId(1)))
     }
   }
 }

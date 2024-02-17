@@ -7,7 +7,7 @@ import models.responses.UserResponse
 import repositories.user.UserDao
 import services.user.UserService.UserException
 import services.user.UserService.UserException._
-import services.user.UserServiceImpl.defaultUser
+import services.user.UserServiceImpl._
 import utils.PasswordHelper
 import zio.{IO, Task, URLayer, ZIO, ZLayer}
 
@@ -27,6 +27,29 @@ class UserServiceImpl(dao: UserDao) extends UserService {
       }
     } yield response
 
+  def signIn(sigInRequest: SignInUserRequest): IO[UserException, UserResponse] =
+    for {
+      _ <- checkEmail(sigInRequest.email)
+      probablyUser <- dao
+        .getByEmail(Email(sigInRequest.email))
+        .catchAll(e => ZIO.fail(InternalError(e)))
+      newUser = SignInUserRequest.toDaoModel(sigInRequest.copy(password = PasswordHelper.decode(sigInRequest.password)))
+      _ <- probablyUser match {
+        case Some(user) =>
+          ZIO.fail(ProfileWithEmailAlreadyExist(Email.unwrap(user.email)))
+        case None =>
+          dao
+            .insert(newUser)
+            .catchAll(e => ZIO.fail(InternalError(e)))
+      }
+    } yield UserResponse.convert(newUser)
+}
+
+object UserServiceImpl {
+
+  val live: URLayer[UserDao, UserService] =
+    ZLayer.fromFunction(new UserServiceImpl(_))
+
   private def checkPassword(inputPassword: String, user: User): IO[UserException, UserResponse] =
     for {
       password <- ZIO
@@ -35,17 +58,13 @@ class UserServiceImpl(dao: UserDao) extends UserService {
       userResponse <-
         if (inputPassword == password)
           ZIO.succeed(UserResponse.convert(user))
-        else ZIO.fail(BadEmailOrPassword())
+        else ZIO.fail(BadEmailOrPassword(None))
     } yield userResponse
 
-  def signIn(sigInRequest: SignInUserRequest): Task[UserResponse] =
-    ZIO.succeed(UserResponse(0, "", "", "", None))
-}
+  private def checkEmail(email: String): IO[UserException, Unit] =
+    (ZIO.unless(email.contains('@'))(ZIO.fail(BadEmailOrPassword(Some("Email must contains @")))) *>
+      ZIO.unless(email.contains('.'))(ZIO.fail(BadEmailOrPassword(Some("Email must end with .<...>"))))).unit
 
-object UserServiceImpl {
-
-  val live: URLayer[UserDao, UserService] =
-    ZLayer.fromFunction(new UserServiceImpl(_))
 
   private val defaultUser: User =
     User(

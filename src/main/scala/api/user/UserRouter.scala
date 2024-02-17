@@ -27,6 +27,7 @@ class UserRouter(userService: UserService) extends UserApi {
         .map(user => (StatusCode.Ok, user))
         .catchAll {
           case e: UserNotFound => ZIO.fail((StatusCode.NotFound, e.msg))
+          case e: BadEmailOrPassword => ZIO.fail((StatusCode.BadRequest, e.msg))
           case e: InternalError => ZIO.fail((StatusCode.InternalServerError, e.msg))
           case _ => ZIO.fail((StatusCode.InternalServerError, "server error"))
         }
@@ -37,11 +38,12 @@ class UserRouter(userService: UserService) extends UserApi {
       userService
         .signIn(request)
         .map(user => (StatusCode.Ok, user))
-        .catchAll(e =>
-          ZIO.fail(
-            (StatusCode.BadRequest, e.getMessage)
-          )
-        )
+        .catchAll {
+          case e: ProfileWithEmailAlreadyExist => ZIO.fail((StatusCode.NotAcceptable, e.msg))
+          case e: BadEmailOrPassword => ZIO.fail((StatusCode.BadRequest, e.msg))
+          case e: InternalError => ZIO.fail((StatusCode.InternalServerError, e.msg))
+          case _ => ZIO.fail((StatusCode.InternalServerError, "server error"))
+        }
     )
 
 }

@@ -12,7 +12,7 @@ trait UserService {
   def getUser(id: UserId): Task[User]
   def authenticate(authenticateRequest: AuthenticateUserRequest): IO[UserException, UserResponse]
 
-  def signIn(sigInRequest: SignInUserRequest): Task[UserResponse]
+  def signIn(sigInRequest: SignInUserRequest): IO[UserException, UserResponse]
 
 }
 
@@ -23,12 +23,16 @@ object UserService {
 
   object UserException {
 
+    case class ProfileWithEmailAlreadyExist(email: String) extends UserException {
+      def msg: String = s"Account with email: $email has already exist!"
+    }
+
     case class UserNotFound(email: String) extends UserException {
       def msg: String = s"$email Not Found"
     }
 
-    case class BadEmailOrPassword() extends UserException {
-      def msg: String = "Incorrect email or password"
+    case class BadEmailOrPassword(prompt: Option[String]) extends UserException {
+      def msg: String = s"Incorrect email or password. ${prompt.getOrElse("")}"
     }
 
     case class InternalError(e: Throwable) extends UserException {

@@ -2,7 +2,7 @@ package services.user
 
 import models.{Description, Email, Password, UserId}
 import models.dao.user.User
-import models.requests.user.{AuthenticateUserRequest, SignInUserRequest}
+import models.requests.user.{AuthenticateUserRequest, SignInUserRequest, UpdateProfileRequest}
 import models.responses.UserResponse
 import repositories.user.UserDao
 import services.user.UserService.UserException
@@ -23,7 +23,7 @@ class UserServiceImpl(dao: UserDao) extends UserService {
         .catchAll(e => ZIO.fail(InternalError(e)))
       response <- probablyUser match {
         case Some(user) => checkPassword(authenticateRequest.password, user)
-        case None => ZIO.fail(UserNotFound(authenticateRequest.email))
+        case None => ZIO.fail(UserNotFound(email = Some(authenticateRequest.email), None))
       }
     } yield response
 
@@ -43,6 +43,16 @@ class UserServiceImpl(dao: UserDao) extends UserService {
             .catchAll(e => ZIO.fail(InternalError(e)))
       }
     } yield UserResponse.convert(newUser)
+
+  def updateUserInfo(updateRequest: UpdateProfileRequest): IO[UserException, Unit] = {
+    for {
+      probablyUser <- dao.getById(UserId(updateRequest.id))
+        .catchAll(e => ZIO.fail(InternalError(e)))
+      _ <- ZIO.when(probablyUser.isEmpty)(ZIO.fail(UserNotFound(None, Some(updateRequest.id))))
+      _ <- dao.updateProfile(updateRequest)
+        .catchAll(e => ZIO.fail(InternalError(e)))
+    } yield ()
+  }
 }
 
 object UserServiceImpl {

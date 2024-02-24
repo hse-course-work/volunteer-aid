@@ -46,6 +46,18 @@ class UserRouter(userService: UserService) extends UserApi {
         }
     )
 
+  def updateUserProfile: ZServerEndpoint[Any, Any] =
+    updateUserInfo.zServerLogic(request =>
+      userService
+        .updateUserInfo(request)
+        .as(StatusCode.Ok)
+        .catchAll {
+          case e: UserNotFound => ZIO.fail((StatusCode.NotFound, e.msg))
+          case e: InternalError => ZIO.fail((StatusCode.InternalServerError, e.msg))
+          case _ => ZIO.fail((StatusCode.InternalServerError, "server error"))
+        }
+    )
+
 }
 
 object UserRouter {

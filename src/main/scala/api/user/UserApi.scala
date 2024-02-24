@@ -1,7 +1,8 @@
 package api.user
 
+import io.circe.Json
 import models.dao.user.User
-import models.requests.user.{AuthenticateUserRequest, SignInUserRequest}
+import models.requests.user.{AuthenticateUserRequest, SignInUserRequest, UpdateProfileRequest}
 import models.responses.UserResponse
 import sttp.tapir.generic.auto._
 import io.circe.generic.auto._
@@ -40,6 +41,16 @@ trait UserApi {
       .out(jsonBody[UserResponse])
       .errorOut(statusCode)
       .errorOut(stringBody)
+
+  protected val updateUserInfo =
+    endpoint
+      .put
+      .in(defaultRoute / "update-profile")
+      .in(jsonBody[UpdateProfileRequest])
+      .out(statusCode)
+      .errorOut(statusCode)
+      .errorOut(stringBody)
+
 }
 
 

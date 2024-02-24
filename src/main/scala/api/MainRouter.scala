@@ -17,6 +17,9 @@ class MainRouter(userRouter: UserRouter) {
   def sigInUser: ZServerEndpoint[Any, Any] =
     userRouter.signInUser
 
+  def updateProfile: ZServerEndpoint[Any, Any] =
+    userRouter.updateUserProfile
+
   // tasks
 //  override def getTask: ServerEndpoint.Full[Unit, Unit, Int, String, GetUserResponse, Any, zio.Task] = {
 //

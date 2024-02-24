@@ -1,12 +1,14 @@
 package repositories.user
 
-import doobie.{ConnectionIO, Get, Put, Read, Write}
+import cats.implicits.toFoldableOps
+import doobie.{ConnectionIO, Fragment, Get, Put, Read, Write}
 import zio.{Task, URLayer, ZLayer}
 import doobie.util.transactor.Transactor
 import doobie.implicits._
 import doobie.util.meta.{MetaConstructors, SqlMetaInstances}
 import models._
 import models.dao.user.User
+import models.requests.user.UpdateProfileRequest
 import repositories.user.UserDaoImpl.Sql
 import zio.interop.catz._
 
@@ -19,10 +21,16 @@ class UserDaoImpl(master: Transactor[Task]) extends UserDao {
     Sql.getUserByEmail(email).transact(master)
 
   def insert(user: User): Task[Unit] =
-    Sql.insertUser(user)
+    Sql
+      .insertUser(user)
       .transact(master)
       .unit
 
+  def updateProfile(request: UpdateProfileRequest): Task[Unit] =
+    Sql
+      .updateInfo(request)
+      .transact(master)
+      .unit
 }
 
 object UserDaoImpl {
@@ -62,6 +70,27 @@ object UserDaoImpl {
             )
          """.update.run
 
+    def updateInfo(request: UpdateProfileRequest): ConnectionIO[Int] = {
+      val baseQuery = sql""" UPDATE users SET """
+
+      def optClause(columnName: String, valueOpt: Option[String]): Option[Fragment] =
+        valueOpt.map(value => fr"$columnName = $value")
+
+      val clauses = List(
+        optClause("login", request.login),
+        optClause("profile_description", request.profileDescription),
+        optClause("photo_url", request.photoUrl)
+      ).flatten // Убираем из списка None элементы
+
+      val setClause = clauses.intercalate(fr",")
+
+      val whereClause = fr"WHERE id = ${request.id}"
+
+      val updateQuery = baseQuery ++ setClause ++ whereClause
+
+      updateQuery.update.run
+    }
+
   }
 
   object Implicits extends MetaConstructors with SqlMetaInstances {
@@ -92,8 +121,8 @@ object UserDaoImpl {
 
     implicit val getUser: Read[User] =
       Read[(Long, String, String, String, String, Option[String])].map {
-        case (id, email, password, description, login, photoUrl)
-        => User(UserId(id), Email(email), Password(password), Description(description), login, photoUrl)
+        case (id, email, password, description, login, photoUrl) =>
+          User(UserId(id), Email(email), Password(password), Description(description), login, photoUrl)
       }
 
   }

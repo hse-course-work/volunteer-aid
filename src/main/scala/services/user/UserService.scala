@@ -9,7 +9,7 @@ import zio.{IO, Task}
 
 trait UserService {
 
-  def getUser(id: UserId): Task[User]
+  def getUser(id: UserId): IO[UserException, User]
   def authenticate(authenticateRequest: AuthenticateUserRequest): IO[UserException, UserResponse]
 
   def signIn(sigInRequest: SignInUserRequest): IO[UserException, UserResponse]
@@ -29,7 +29,7 @@ object UserService {
       def msg: String = s"Account with email: $email has already exist!"
     }
 
-    case class UserNotFound(email: Option[String], id: Option[Int]) extends UserException {
+    case class UserNotFound(email: Option[String], id: Option[Long]) extends UserException {
       def msg: String = s"User with ${email.map(_ => "email").getOrElse("id")} ${email.getOrElse(id)} Not Found"
     }
 

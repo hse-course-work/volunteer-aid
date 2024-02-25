@@ -44,10 +44,18 @@ object Main extends zio.ZIOAppDefault {
       MainRouter.live
     )
 
+  def getEndpoints(router: MainRouter):  List[ZServerEndpoint[Any, Any]] =
+    List(
+      router.getUser,
+      router.authenticateUser,
+      router.sigInUser,
+      router.updateProfile
+    )
+
   def run: ZIO[Environment with Scope, Any, Any] =
     (for {
       mainRouter <- ZIO.service[MainRouter]
-      endpoints = List(mainRouter.getUser, mainRouter.authenticateUser, mainRouter.sigInUser, mainRouter.updateProfile)
+      endpoints = getEndpoints(mainRouter)
       routes: HttpRoutes[Task] = ZHttp4sServerInterpreter()
         .from(endpoints)
         .toRoutes

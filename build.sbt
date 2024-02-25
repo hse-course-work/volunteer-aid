@@ -41,7 +41,9 @@ libraryDependencies ++= Seq(
   // testcontainers
   "io.github.scottweaver" %% "zio-2-0-testcontainers-postgresql" % "0.10.0",
 
-  "org.apache.directory.studio" % "org.apache.commons.io" % "2.4"
+  "org.apache.directory.studio" % "org.apache.commons.io" % "2.4",
+
+  "joda-time" % "joda-time" % "2.9.3"
 
 
 )

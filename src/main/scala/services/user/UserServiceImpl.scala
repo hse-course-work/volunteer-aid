@@ -13,8 +13,15 @@ import zio.{IO, Task, URLayer, ZIO, ZLayer}
 
 class UserServiceImpl(dao: UserDao) extends UserService {
 
-  def getUser(id: UserId): Task[User] =
-    dao.getById(id).map(_.getOrElse(defaultUser))
+  def getUser(id: UserId): IO[UserException, User] =
+    for {
+      userOpt <- dao.getById(id)
+        .catchAll(e => ZIO.fail(InternalError(e)))
+      result <- userOpt match {
+        case Some(user) => ZIO.succeed(user)
+        case None => ZIO.fail(UserNotFound(None, Some(UserId.unwrap(id))))
+      }
+    } yield result
 
   def authenticate(authenticateRequest: AuthenticateUserRequest): IO[UserException, UserResponse] =
     for {

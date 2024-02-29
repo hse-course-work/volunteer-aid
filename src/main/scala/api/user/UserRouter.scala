@@ -17,7 +17,7 @@ class UserRouter(userService: UserService) extends UserApi {
         .map(user =>
           (StatusCode.Ok, UserResponse.convert(user))
         )
-        .catchAll(e => ZIO.fail((StatusCode.BadRequest, e.getMessage)))
+        .catchAll(e => ZIO.fail((StatusCode.BadRequest, e.msg)))
     )
 
   def authenticateUser: ZServerEndpoint[Any, Any] =

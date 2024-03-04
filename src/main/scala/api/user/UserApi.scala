@@ -1,14 +1,10 @@
 package api.user
 
-import io.circe.Json
-import models.dao.user.User
 import models.requests.user.{AuthenticateUserRequest, SignInUserRequest, UpdateProfileRequest}
 import models.responses.UserResponse
-import sttp.tapir.generic.auto._
-import io.circe.generic.auto._
+import sttp.tapir.generic.auto.schemaForCaseClass
+import sttp.tapir.json.circe.jsonBody
 import sttp.tapir.ztapir._
-import sttp.tapir.generic.auto.{SchemaDerivation, schemaForCaseClass}
-import sttp.tapir.json.circe.{TapirJsonCirce, jsonBody}
 
 trait UserApi {
   private val defaultRoute = "api" / "user" / "v1"

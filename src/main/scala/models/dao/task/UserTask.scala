@@ -15,16 +15,26 @@ object UserTask {
 
   sealed trait Status {
     def id: Int
+    def name: String
   }
 
   object Status {
 
+    def withName(name: String): Status =
+      name match {
+        case "active" => Active
+        case "closed" => Closed
+        case _ => throw new IllegalArgumentException(s"No status with name = $name")
+      }
+
     case object Active extends Status {
       override def id: Int = 0
+      override def name: String = "active"
     }
 
     case object Closed extends Status {
       override def id: Int = 1
+      override def name: String = "closed"
     }
 
     def apply(id: Int): Status =

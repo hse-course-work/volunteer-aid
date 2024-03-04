@@ -2,21 +2,22 @@ package services.task
 
 import models.dao.task.UserTask
 import models.dao.task.UserTask.Status
+import models.requests.task.NewTaskRequest
 import repositories.task.TaskDao.Filter
 import services.task.TaskService.TaskException
 import zio.{IO, Task}
 
 trait TaskService {
 
-  def createTask(task: UserTask): IO[TaskException, Unit]
+  def createTask(task: NewTaskRequest): IO[TaskException, Unit]
 
-  def updateTaskStatus(taskId: Long, newStatus: Status): IO[TaskException, Unit]
+  def updateTaskStatus(taskId: Long, newStatus: String): IO[TaskException, Unit]
 
   def getTask(id: Long): IO[TaskException, UserTask]
 
-  def getTasksWithStatus(statusId: Int): IO[TaskException, Seq[UserTask]]
+  def getTasksWithStatus(statusId: String): IO[TaskException, Seq[UserTask]]
 
-  def  getTasksCreateBy(creatorId: Int): IO[TaskException, Seq[UserTask]]
+  def getTasksCreateBy(creatorId: Long): IO[TaskException, Seq[UserTask]]
 
 }
 
@@ -40,6 +41,10 @@ object TaskService {
     }
 
     case class BadStatus(message: String) extends TaskException
+
+    case class BadRequestForNewTask(fields: Seq[String]) extends TaskException {
+      override def message: String = s"Fields: $fields in request have mistakes"
+    }
   }
 
 }

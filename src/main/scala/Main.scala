@@ -1,6 +1,8 @@
 import api.MainRouter
+import api.task.TaskRouter
 import api.user.UserRouter
 import cats.syntax.all._
+import models.dao.task.UserTask
 import org.http4s.{HttpRoutes, _}
 import org.http4s.blaze.server.BlazeServerBuilder
 import org.http4s.server.Router
@@ -12,6 +14,8 @@ import sttp.tapir.swagger.bundle.SwaggerInterpreter
 import sttp.tapir.ztapir._
 import zio.interop.catz._
 import pureconfig.generic.auto._
+import repositories.task.TaskDaoImpl
+import services.task.TaskServiceImpl
 import zio.{Scope, Task, ULayer, URLayer, ZIO, ZLayer}
 import utils.{MasterTransactor, PureConfig}
 
@@ -41,7 +45,12 @@ object Main extends zio.ZIOAppDefault {
       UserRouter.live,
 
       // main
-      MainRouter.live
+      MainRouter.live,
+
+      // task
+      TaskDaoImpl.live,
+      TaskServiceImpl.live,
+      TaskRouter.live
     )
 
   def getEndpoints(router: MainRouter):  List[ZServerEndpoint[Any, Any]] =
@@ -49,7 +58,12 @@ object Main extends zio.ZIOAppDefault {
       router.getUser,
       router.authenticateUser,
       router.sigInUser,
-      router.updateProfile
+      router.updateProfile,
+      router.getTask,
+      router.createTaskByCreator,
+      router.updateTaskWithStatus,
+      router.getSomeTasksByStatus,
+      router.getSomeTasksByCreator
     )
 
   def run: ZIO[Environment with Scope, Any, Any] =

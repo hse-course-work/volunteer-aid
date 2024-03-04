@@ -1,11 +1,12 @@
 package api
 
+import api.task.TaskRouter
 import api.user.UserRouter
 import models.responses.UserResponse
 import sttp.tapir.ztapir.ZServerEndpoint
-import zio.{Task, URLayer, ZLayer}
+import zio.{&, Task, URLayer, ZLayer}
 
-class MainRouter(userRouter: UserRouter) {
+class MainRouter(userRouter: UserRouter, taskRouter: TaskRouter) {
 
   // user
   def getUser: ZServerEndpoint[Any, Any] =
@@ -21,14 +22,27 @@ class MainRouter(userRouter: UserRouter) {
     userRouter.updateUserProfile
 
   // tasks
-//  override def getTask: ServerEndpoint.Full[Unit, Unit, Int, String, GetUserResponse, Any, zio.Task] = {
-//
-//  }
+
+  def getTask: ZServerEndpoint[Any, Any] =
+    taskRouter.getTask
+
+  def updateTaskWithStatus: ZServerEndpoint[Any, Any] =
+    taskRouter.updateTaskWithStatus
+
+  def createTaskByCreator: ZServerEndpoint[Any, Any] =
+    taskRouter.createTaskByCreator
+
+  def getSomeTasksByStatus: ZServerEndpoint[Any, Any] =
+    taskRouter.getSomeTasksByStatus
+
+  def getSomeTasksByCreator: ZServerEndpoint[Any, Any] =
+    taskRouter.getSomeTasksByCreator
+
 }
 
 object MainRouter {
 
-  val live: URLayer[UserRouter, MainRouter] =
-    ZLayer.fromFunction(new MainRouter(_))
+  val live: URLayer[UserRouter & TaskRouter, MainRouter] =
+    ZLayer.fromFunction(new MainRouter(_, _))
 
 }

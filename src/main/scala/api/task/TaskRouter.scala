@@ -58,7 +58,7 @@ class TaskRouter(taskService: TaskService) extends TaskApi {
       taskService
         .getTasksWithStatus(status)
         .map(tasks =>
-          (StatusCode.Ok, tasks.map(TaskResponse.convert(task)))
+          (StatusCode.Ok, tasks.map(TaskResponse.convert).toList)
         )
         .catchAll {
           case e: BadStatus => ZIO.fail((StatusCode.BadRequest, e.message))
@@ -72,7 +72,7 @@ class TaskRouter(taskService: TaskService) extends TaskApi {
       taskService
         .getTasksCreateBy(id)
         .map(tasks =>
-          (StatusCode.Ok, tasks.map(TaskResponse.convert(task)))
+          (StatusCode.Ok, tasks.map(TaskResponse.convert).toList)
         )
         .catchAll {
           case e: CreatorProfileNotExist => ZIO.fail((StatusCode.BadRequest, e.message))

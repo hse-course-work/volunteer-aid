@@ -15,12 +15,16 @@ import services.user.UserService.UserException.UserNotFound
 import zio.{&, IO, URLayer, ZIO, ZLayer}
 
 class TaskServiceImpl(taskDao: TaskDao, userService: UserService) extends TaskService {
-  def createTask(task: NewTaskRequest): IO[TaskException, Unit] =
+  def createTask(task: NewTaskRequest): IO[TaskException, UserTask] =
     for {
       _ <- checkCreatorExist(task.creatorId)
-      _ <- taskDao.createTask(task.covertToDao)
+      taskModel <- ZIO.attempt(NewTaskRequest.toDao(task))
+        .catchAll(e => ZIO.fail(BadStatus(e.getMessage)))
+      _ <- taskDao.createTask(taskModel)
         .catchAll(e => ZIO.fail(InternalError(e)))
-    } yield ()
+      tasks <- taskDao.getBy(Filter.ByCreator(task.creatorId))
+        .catchAll(e => ZIO.fail(InternalError(e)))
+    } yield tasks.maxBy(_.createdAt)
 
   private def checkCreatorExist(userId: Long): IO[TaskException, User] =
     userService.getUser(UserId(userId))
@@ -29,7 +33,7 @@ class TaskServiceImpl(taskDao: TaskDao, userService: UserService) extends TaskSe
         case e: UserException.InternalError => InternalError(e.e)
       }
 
-  def updateTaskStatus(taskId: Long, newStatus: String): IO[TaskException, Unit] =
+  def updateTaskStatus(taskId: Long, newStatus: String): IO[TaskException, UserTask] =
     for {
       newStatus <- ZIO.attempt(Status.withName(newStatus))
         .catchAll(e => ZIO.fail(BadStatus(e.getMessage)))
@@ -41,7 +45,9 @@ class TaskServiceImpl(taskDao: TaskDao, userService: UserService) extends TaskSe
       }
       _ <- taskDao.updateTaskStatus(taskId, newStatus)
         .catchAll(e => ZIO.fail(InternalError(e)))
-    } yield ()
+      task <- taskDao.get(taskId)
+        .catchAll(e => ZIO.fail(InternalError(e)))
+    } yield task.get
 
   def getTask(id: Long): IO[TaskException, UserTask] =
     taskDao.get(id)

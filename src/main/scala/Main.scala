@@ -55,15 +55,15 @@ object Main extends zio.ZIOAppDefault {
 
   def getEndpoints(router: MainRouter):  List[ZServerEndpoint[Any, Any]] =
     List(
-      router.getUser,
-      router.authenticateUser,
-      router.sigInUser,
-      router.updateProfile,
-      router.getTask,
-      router.createTaskByCreator,
-      router.updateTaskWithStatus,
-      router.getSomeTasksByStatus,
-      router.getSomeTasksByCreator
+      router.getUser.tag("Users"),
+      router.authenticateUser.tag("Users"),
+      router.sigInUser.tag("Users"),
+      router.updateProfile.tag("Users"),
+      router.getTask.tag("Tasks"),
+      router.createTaskByCreator.tag("Tasks"),
+      router.updateTaskWithStatus.tag("Tasks"),
+      router.getSomeTasksByStatus.tag("Tasks"),
+      router.getSomeTasksByCreator.tag("Tasks")
     )
 
   def run: ZIO[Environment with Scope, Any, Any] =

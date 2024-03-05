@@ -56,14 +56,16 @@ object TaskDaoImpl {
     def insertQuery(task: UserTask): ConnectionIO[Int] =
       sql"""
             INSERT INTO tasks (
-            creator_id, description, status_id, created_at, involved_count
+            creator_id, description, status_id, created_at, involved_count, x_coord, y_coord
             )
             VALUES (
               ${task.creatorId},
               ${task.description},
               ${task.status.id},
               ${task.createdAt},
-              ${task.involvedCount}
+              ${task.involvedCount},
+              ${task.xCoord},
+              ${task.yCoord}
             )
          """.update.run
 
@@ -115,9 +117,9 @@ object TaskDaoImpl {
       Get[Int].map(id => Status(id))
 
     implicit val readUserTask: Read[UserTask] =
-      Read[(Long, Long, String, Int, DateTime, Int)].map {
-        case (id, creatorId, description, statusId, createdAt, involvedCount) =>
-          UserTask(id, creatorId, description, Status(statusId), createdAt, involvedCount)
+      Read[(Long, Long, String, Int, DateTime, Int, Double, Double)].map {
+        case (id, creatorId, description, statusId, createdAt, involvedCount, x, y) =>
+          UserTask(id, creatorId, description, Status(statusId), createdAt, involvedCount, x, y)
       }
 
   }

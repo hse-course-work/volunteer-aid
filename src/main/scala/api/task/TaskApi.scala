@@ -5,7 +5,8 @@ import models.responses.TaskResponse
 import sttp.tapir.generic.auto.schemaForCaseClass
 import sttp.tapir.json.circe.jsonBody
 import sttp.tapir.ztapir._
-
+import TaskResponse._
+import NewTaskRequest._
 
 trait TaskApi {
 
@@ -26,8 +27,8 @@ trait TaskApi {
       .put
       .in(defaultRoute / "set-status")
       .in(jsonBody[UpdateTaskStatus])
-      .out(jsonBody[TaskResponse])
       .out(statusCode)
+      .out(jsonBody[TaskResponse])
       .errorOut(statusCode)
       .errorOut(stringBody)
 

@@ -9,9 +9,9 @@ import zio.{IO, Task}
 
 trait TaskService {
 
-  def createTask(task: NewTaskRequest): IO[TaskException, Unit]
+  def createTask(task: NewTaskRequest): IO[TaskException, UserTask]
 
-  def updateTaskStatus(taskId: Long, newStatus: String): IO[TaskException, Unit]
+  def updateTaskStatus(taskId: Long, newStatus: String): IO[TaskException, UserTask]
 
   def getTask(id: Long): IO[TaskException, UserTask]
 

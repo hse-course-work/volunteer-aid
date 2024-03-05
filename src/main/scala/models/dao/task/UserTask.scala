@@ -9,7 +9,9 @@ case class UserTask(
     description: String,
     status: Status,
     createdAt: DateTime,
-    involvedCount: Int)
+    involvedCount: Int,
+    xCoord: Double,
+    yCoord: Double)
 
 object UserTask {
 

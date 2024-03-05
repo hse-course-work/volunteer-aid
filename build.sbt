@@ -26,6 +26,7 @@ libraryDependencies ++= Seq(
   "io.circe" %% "circe-core" % "0.14.6",
   "io.circe" %% "circe-generic" % "0.14.6",
   "io.circe" %% "circe-parser" % "0.14.6",
+  "com.softwaremill.sttp.tapir" %% "tapir-newtype" % "1.9.10",
 
 
   "dev.zio" %% "zio-interop-cats" % "23.1.0.0",

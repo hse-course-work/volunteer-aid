@@ -65,7 +65,8 @@ object Main extends zio.ZIOAppDefault {
       router.createTaskByCreator.tag("Tasks"),
       router.updateTaskWithStatus.tag("Tasks"),
       router.getSomeTasksByStatus.tag("Tasks"),
-      router.getSomeTasksByCreator.tag("Tasks")
+      router.getSomeTasksByCreator.tag("Tasks"),
+      router.deleteTask.tag("Tasks")
     )
 
   def run: ZIO[Environment with Scope, Any, Any] =

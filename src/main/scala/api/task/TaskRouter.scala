@@ -16,9 +16,7 @@ class TaskRouter(taskService: TaskService) extends TaskApi {
     get.zServerLogic(id =>
       taskService
         .getTask(id)
-        .map(task =>
-          (StatusCode.Ok, TaskResponse.convert(task))
-        )
+        .map(task => (StatusCode.Ok, TaskResponse.convert(task)))
         .catchAll {
           case e: TaskNotFound => ZIO.fail((StatusCode.NotFound, e.message))
           case e => ZIO.fail((StatusCode.InternalServerError, e.message))
@@ -29,9 +27,7 @@ class TaskRouter(taskService: TaskService) extends TaskApi {
     updateTaskStatus.zServerLogic(statusUpdate =>
       taskService
         .updateTaskStatus(statusUpdate.id, statusUpdate.newStatus)
-        .map(task =>
-          (StatusCode.Ok, TaskResponse.convert(task))
-        )
+        .map(task => (StatusCode.Ok, TaskResponse.convert(task)))
         .catchAll {
           case e: BadStatus => ZIO.fail((StatusCode.BadRequest, e.message))
           case e: TaskNotFound => ZIO.fail((StatusCode.NotFound, e.message))
@@ -43,9 +39,7 @@ class TaskRouter(taskService: TaskService) extends TaskApi {
     createNewTask.zServerLogic(newTask =>
       taskService
         .createTask(newTask)
-        .map(task =>
-          (StatusCode.Ok, TaskResponse.convert(task))
-        )
+        .map(task => (StatusCode.Ok, TaskResponse.convert(task)))
         .catchAll {
           case e: CreatorProfileNotExist => ZIO.fail((StatusCode.BadRequest, e.message))
           case e: TaskNotFound => ZIO.fail((StatusCode.NotFound, e.message))
@@ -57,9 +51,7 @@ class TaskRouter(taskService: TaskService) extends TaskApi {
     getTasksByStatus.zServerLogic(status =>
       taskService
         .getTasksWithStatus(status)
-        .map(tasks =>
-          (StatusCode.Ok, tasks.map(TaskResponse.convert).toList)
-        )
+        .map(tasks => (StatusCode.Ok, tasks.map(TaskResponse.convert).toList))
         .catchAll {
           case e: BadStatus => ZIO.fail((StatusCode.BadRequest, e.message))
           case e: TaskNotFound => ZIO.fail((StatusCode.NotFound, e.message))
@@ -71,9 +63,7 @@ class TaskRouter(taskService: TaskService) extends TaskApi {
     getTasksByCreator.zServerLogic(id =>
       taskService
         .getTasksCreateBy(id)
-        .map(tasks =>
-          (StatusCode.Ok, tasks.map(TaskResponse.convert).toList)
-        )
+        .map(tasks => (StatusCode.Ok, tasks.map(TaskResponse.convert).toList))
         .catchAll {
           case e: CreatorProfileNotExist => ZIO.fail((StatusCode.BadRequest, e.message))
           case e: TaskNotFound => ZIO.fail((StatusCode.NotFound, e.message))
@@ -81,6 +71,16 @@ class TaskRouter(taskService: TaskService) extends TaskApi {
         }
     )
 
+  def delete: ZServerEndpoint[Any, Any] =
+    deleteTask.zServerLogic(id =>
+      taskService
+        .deleteTask(id)
+        .as(StatusCode.Ok)
+        .catchAll {
+          case e: TaskNotFound => ZIO.fail((StatusCode.NotFound, e.message))
+          case e => ZIO.fail((StatusCode.InternalServerError, e.message))
+        }
+    )
 
 }
 

@@ -60,6 +60,14 @@ trait TaskApi {
       .errorOut(statusCode)
       .errorOut(stringBody)
 
+  protected val deleteTask =
+    endpoint
+      .delete
+      .in(defaultRoute / "delete-task" / path[Int]("id"))
+      .out(statusCode)
+      .errorOut(statusCode)
+      .errorOut(stringBody)
+
 
 
 }

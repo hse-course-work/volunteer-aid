@@ -41,6 +41,9 @@ class MainRouter(userRouter: UserRouter, taskRouter: TaskRouter) {
   def getSomeTasksByCreator: ZServerEndpoint[Any, Any] =
     taskRouter.getSomeTasksByCreator
 
+  def deleteTask: ZServerEndpoint[Any, Any] =
+    taskRouter.delete
+
 }
 
 object MainRouter {

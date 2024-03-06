@@ -19,6 +19,8 @@ trait TaskService {
 
   def getTasksCreateBy(creatorId: Long): IO[TaskException, Seq[UserTask]]
 
+  def deleteTask(id: Long): IO[TaskException, Unit]
+
 }
 
 object TaskService {

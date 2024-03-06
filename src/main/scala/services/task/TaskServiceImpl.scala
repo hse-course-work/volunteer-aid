@@ -72,6 +72,18 @@ class TaskServiceImpl(taskDao: TaskDao, userService: UserService) extends TaskSe
       result <- taskDao.getBy(Filter.ByCreator(creatorId))
         .catchAll(e => ZIO.fail(InternalError(e)))
     } yield result
+
+  def deleteTask(id: Long): IO[TaskException, Unit] =
+    for {
+      taskOpt <- taskDao.get(id)
+        .catchAll(e => ZIO.fail(InternalError(e)))
+      _ <- taskOpt match {
+        case Some(_) => ZIO.unit
+        case None => ZIO.fail(TaskNotFound(id))
+      }
+      _ <- taskDao.softDelete(id)
+        .catchAll(e => ZIO.fail(InternalError(e)))
+    } yield ()
 }
 
 object TaskServiceImpl {

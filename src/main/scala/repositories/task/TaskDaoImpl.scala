@@ -43,6 +43,12 @@ class TaskDaoImpl(master: Transactor[Task]) extends TaskDao {
     sqlQuery.transact(master)
   }
 
+  def softDelete(id: Long): Task[Unit] =
+    Sql
+      .deleteTask(id)
+      .transact(master)
+      .unit
+
 
 }
 
@@ -97,6 +103,9 @@ object TaskDaoImpl {
       (baseGetQuery ++ sql" status = ${status.id} ")
         .query[UserTask]
         .to[Seq]
+
+    def deleteTask(id: Long): ConnectionIO[Int] =
+      updateStatus(id, Status.Delete)
 
 
 

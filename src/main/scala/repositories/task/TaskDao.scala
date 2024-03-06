@@ -11,6 +11,7 @@ trait TaskDao {
   def updateTaskStatus(taskId: Long, newStatus: Status): Task[Unit]
   def get(id: Long): Task[Option[UserTask]]
   def getBy(filter: Filter): Task[Seq[UserTask]]
+  def softDelete(id: Long): Task[Unit]
 
 }
 

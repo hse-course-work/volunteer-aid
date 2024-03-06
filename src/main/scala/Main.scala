@@ -1,4 +1,5 @@
 import api.MainRouter
+import api.rating.RatingRouter
 import api.task.TaskRouter
 import api.user.UserRouter
 import cats.syntax.all._
@@ -14,7 +15,9 @@ import sttp.tapir.swagger.bundle.SwaggerInterpreter
 import sttp.tapir.ztapir._
 import zio.interop.catz._
 import pureconfig.generic.auto._
+import repositories.rating.LikeDaoImpl
 import repositories.task.TaskDaoImpl
+import services.rating.RatingServiceImpl
 import services.task.TaskServiceImpl
 import zio.{Scope, Task, ULayer, URLayer, ZIO, ZLayer}
 import utils.{MasterTransactor, PureConfig}
@@ -50,7 +53,12 @@ object Main extends zio.ZIOAppDefault {
       // task
       TaskDaoImpl.live,
       TaskServiceImpl.live,
-      TaskRouter.live
+      TaskRouter.live,
+
+      // rating
+      LikeDaoImpl.live,
+      RatingServiceImpl.live,
+      RatingRouter.live
     )
 
   def getEndpoints(router: MainRouter):  List[ZServerEndpoint[Any, Any]] =
@@ -66,7 +74,11 @@ object Main extends zio.ZIOAppDefault {
       router.updateTaskWithStatus.tag("Tasks"),
       router.getSomeTasksByStatus.tag("Tasks"),
       router.getSomeTasksByCreator.tag("Tasks"),
-      router.deleteTask.tag("Tasks")
+      router.deleteTask.tag("Tasks"),
+      // ----
+      router.getBy.tag("Rating"),
+      router.putLike.tag("Rating"),
+      router.deleteLike.tag("Rating")
     )
 
   def run: ZIO[Environment with Scope, Any, Any] =

@@ -15,7 +15,9 @@ CREATE TABLE "tasks" (
  "description" text,
  "status_id" int,
  "created_at" timestamp,
- "involved_count" int
+ "involved_count" int,
+  "x_coord" real,
+  "y_coord" real,
 );
 
 
@@ -72,6 +74,7 @@ CREATE TABLE "likes" (
  "task_id" bigint,
  "message" text,
  "created_at" timestamp
+ UNIQUE(user_id_to, task_id)
 );
 
 
@@ -83,13 +86,6 @@ CREATE TABLE "pushes" (
  "created_at" timestamp
 );
 
-
-CREATE TABLE "point_infos" (
- "id" bigserial PRIMARY KEY,
- "x" real,
- "y" real,
- "task_id" bigint
-);
 
 
 ALTER TABLE "task_photos" ADD FOREIGN KEY ("task_id") REFERENCES "tasks" ("id");
@@ -133,5 +129,3 @@ ALTER TABLE "pushes" ADD FOREIGN KEY ("user_id_to") REFERENCES "users" ("id");
 
 ALTER TABLE "pushes" ADD FOREIGN KEY ("user_id_to") REFERENCES "comments" ("id");
 
-
-ALTER TABLE "point_infos" ADD FOREIGN KEY ("task_id") REFERENCES "tasks" ("id");

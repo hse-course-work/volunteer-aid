@@ -4,17 +4,16 @@ import doobie.{ConnectionIO, Get, Put, Read}
 import doobie.implicits.toSqlInterpolator
 import doobie.util.transactor.Transactor
 import doobie.implicits._
-import doobie.util.meta.{MetaConstructors, SqlMetaInstances}
 import models.dao.task.UserTask
 import models.dao.task.UserTask.Status
 import org.joda.time.DateTime
 import repositories.task.TaskDao.Filter
 import repositories.task.TaskDao.Filter._
 import repositories.task.TaskDaoImpl.Sql
+import utils.DoobieMapping
 import zio.{Task, URLayer, ZLayer}
 import zio.interop.catz._
 
-import java.sql.Timestamp
 
 class TaskDaoImpl(master: Transactor[Task]) extends TaskDao {
 
@@ -108,16 +107,9 @@ object TaskDaoImpl {
       updateStatus(id, Status.Delete)
 
 
-
   }
 
-  object Mapping extends MetaConstructors with SqlMetaInstances {
-
-    implicit val putDateTime: Put[DateTime] =
-      Put[Timestamp].tcontramap[DateTime](date => new Timestamp(date.getMillis))
-
-    implicit val getDateTime: Get[DateTime] =
-      Get[Timestamp].map(datetime => new DateTime(datetime.getTime))
+  object Mapping extends DoobieMapping {
 
     implicit val putStatus: Put[Status] =
       Put[Int].tcontramap[Status](status => status.id)

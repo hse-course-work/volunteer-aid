@@ -1,12 +1,13 @@
 package api
 
+import api.rating.RatingRouter
 import api.task.TaskRouter
 import api.user.UserRouter
 import models.responses.UserResponse
 import sttp.tapir.ztapir.ZServerEndpoint
 import zio.{&, Task, URLayer, ZLayer}
 
-class MainRouter(userRouter: UserRouter, taskRouter: TaskRouter) {
+class MainRouter(userRouter: UserRouter, taskRouter: TaskRouter, ratingRouter: RatingRouter) {
 
   // user
   def getUser: ZServerEndpoint[Any, Any] =
@@ -44,11 +45,22 @@ class MainRouter(userRouter: UserRouter, taskRouter: TaskRouter) {
   def deleteTask: ZServerEndpoint[Any, Any] =
     taskRouter.delete
 
+  // rating
+  def getBy: ZServerEndpoint[Any, Any] =
+    ratingRouter.getBy
+
+  def putLike: ZServerEndpoint[Any, Any] =
+    ratingRouter.putLike
+
+  def deleteLike: ZServerEndpoint[Any, Any] =
+    ratingRouter.deleteLike
+
+
 }
 
 object MainRouter {
 
-  val live: URLayer[UserRouter & TaskRouter, MainRouter] =
-    ZLayer.fromFunction(new MainRouter(_, _))
+  val live: URLayer[UserRouter & TaskRouter & RatingRouter, MainRouter] =
+    ZLayer.fromFunction(new MainRouter(_, _, _))
 
 }

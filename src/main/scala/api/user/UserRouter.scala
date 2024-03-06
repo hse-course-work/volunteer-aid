@@ -58,6 +58,18 @@ class UserRouter(userService: UserService) extends UserApi {
         }
     )
 
+  def deleteProfile: ZServerEndpoint[Any, Any] =
+    deleteUser.zServerLogic(request =>
+      userService
+        .deleteUserProfile(UserId(request))
+        .as(StatusCode.Ok)
+        .catchAll {
+          case e: UserNotFound => ZIO.fail((StatusCode.NotFound, e.msg))
+          case e: InternalError => ZIO.fail((StatusCode.InternalServerError, e.msg))
+          case _ => ZIO.fail((StatusCode.InternalServerError, "server error"))
+        }
+    )
+
 }
 
 object UserRouter {

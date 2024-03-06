@@ -13,4 +13,6 @@ trait UserDao {
 
   def updateProfile(request: UpdateProfileRequest): Task[Unit]
 
+  def deleteProfile(id: UserId): Task[Unit]
+
 }

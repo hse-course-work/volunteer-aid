@@ -31,6 +31,12 @@ class UserDaoImpl(master: Transactor[Task]) extends UserDao {
       .updateInfo(request)
       .transact(master)
       .unit
+
+  override def deleteProfile(id: UserId): Task[Unit] =
+    Sql
+      .delete(id)
+      .transact(master)
+      .unit
 }
 
 object UserDaoImpl {
@@ -90,6 +96,11 @@ object UserDaoImpl {
 
       updateQuery.update.run
     }
+
+    def delete(id: UserId): ConnectionIO[Int] =
+      sql"DELETE FROM users WHERE id = $id"
+        .update
+        .run
 
   }
 

@@ -16,6 +16,8 @@ trait UserService {
 
   def updateUserInfo(updateRequest: UpdateProfileRequest): IO[UserException, Unit]
 
+  def deleteUserProfile(id: UserId): IO[UserException, Unit]
+
 }
 
 object UserService {

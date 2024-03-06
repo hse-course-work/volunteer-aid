@@ -59,6 +59,8 @@ object Main extends zio.ZIOAppDefault {
       router.authenticateUser.tag("Users"),
       router.sigInUser.tag("Users"),
       router.updateProfile.tag("Users"),
+      router.deleteUser.tag("Users"),
+      // ----
       router.getTask.tag("Tasks"),
       router.createTaskByCreator.tag("Tasks"),
       router.updateTaskWithStatus.tag("Tasks"),

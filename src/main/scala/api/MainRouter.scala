@@ -21,6 +21,9 @@ class MainRouter(userRouter: UserRouter, taskRouter: TaskRouter) {
   def updateProfile: ZServerEndpoint[Any, Any] =
     userRouter.updateUserProfile
 
+  def deleteUser:  ZServerEndpoint[Any, Any] =
+    userRouter.deleteProfile
+
   // tasks
 
   def getTask: ZServerEndpoint[Any, Any] =

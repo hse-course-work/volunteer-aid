@@ -15,7 +15,8 @@ class UserServiceImpl(dao: UserDao) extends UserService {
 
   def getUser(id: UserId): IO[UserException, User] =
     for {
-      userOpt <- dao.getById(id)
+      userOpt <- dao
+        .getById(id)
         .catchAll(e => ZIO.fail(InternalError(e)))
       result <- userOpt match {
         case Some(user) => ZIO.succeed(user)
@@ -53,13 +54,28 @@ class UserServiceImpl(dao: UserDao) extends UserService {
 
   def updateUserInfo(updateRequest: UpdateProfileRequest): IO[UserException, Unit] = {
     for {
-      probablyUser <- dao.getById(UserId(updateRequest.id))
+      probablyUser <- dao
+        .getById(UserId(updateRequest.id))
         .catchAll(e => ZIO.fail(InternalError(e)))
       _ <- ZIO.when(probablyUser.isEmpty)(ZIO.fail(UserNotFound(None, Some(updateRequest.id))))
-      _ <- dao.updateProfile(updateRequest)
+      _ <- dao
+        .updateProfile(updateRequest)
         .catchAll(e => ZIO.fail(InternalError(e)))
     } yield ()
   }
+
+  def deleteUserProfile(id: UserId): IO[UserException, Unit] =
+    for {
+      userOpt <- dao
+        .getById(id)
+        .catchAll(e => ZIO.fail(InternalError(e)))
+      result <- userOpt match {
+        case Some(user) => ZIO.succeed(user)
+        case None => ZIO.fail(UserNotFound(None, Some(UserId.unwrap(id))))
+      }
+      _ <- dao.deleteProfile(result.id)
+        .catchAll(e => ZIO.fail(InternalError(e)))
+    } yield ()
 }
 
 object UserServiceImpl {
@@ -81,7 +97,6 @@ object UserServiceImpl {
   private def checkEmail(email: String): IO[UserException, Unit] =
     (ZIO.unless(email.contains('@'))(ZIO.fail(BadEmailOrPassword(Some("Email must contains @")))) *>
       ZIO.unless(email.contains('.'))(ZIO.fail(BadEmailOrPassword(Some("Email must end with .<...>"))))).unit
-
 
   private val defaultUser: User =
     User(

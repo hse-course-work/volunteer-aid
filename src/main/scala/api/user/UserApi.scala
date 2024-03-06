@@ -47,6 +47,14 @@ trait UserApi {
       .errorOut(statusCode)
       .errorOut(stringBody)
 
+  protected val deleteUser =
+    endpoint
+      .delete
+      .in(defaultRoute / "delete-profile" / path[Int](name= "id"))
+      .out(statusCode)
+      .errorOut(statusCode)
+      .errorOut(stringBody)
+
 }
 
 

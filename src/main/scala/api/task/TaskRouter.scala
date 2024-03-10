@@ -2,15 +2,17 @@ package api.task
 
 import models.UserId
 import models.dao.task.UserTask.Status
+import models.requests.task.HashtagRequest
 import models.responses.{TaskResponse, UserResponse}
+import services.hashtag.HashtagService
 import services.task.TaskService
 import services.task.TaskService.TaskException._
 import sttp.model.StatusCode
 import sttp.tapir.ztapir.{RichZEndpoint, ZServerEndpoint}
-import zio.{URLayer, ZIO, ZLayer}
+import zio.{&, URLayer, ZIO, ZLayer}
 import sttp.tapir.generic.auto._
 
-class TaskRouter(taskService: TaskService) extends TaskApi {
+class TaskRouter(taskService: TaskService, hashtagService: HashtagService) extends TaskApi {
 
   def getTask: ZServerEndpoint[Any, Any] =
     get.zServerLogic(id =>
@@ -83,11 +85,40 @@ class TaskRouter(taskService: TaskService) extends TaskApi {
         }
     )
 
+  def addTag:  ZServerEndpoint[Any, Any] =
+    addHashtag.zServerLogic(request =>
+      for {
+        model <- ZIO.attempt(HashtagRequest.toModel(request))
+          .catchAll(e => ZIO.fail((StatusCode.BadRequest, e.getMessage)))
+        result <- hashtagService.addHashtag(model)
+          .as(StatusCode.Ok)
+          .catchAll {
+            case e: TaskNotFound => ZIO.fail((StatusCode.NotFound, e.message))
+            case e => ZIO.fail((StatusCode.InternalServerError, e.message))
+          }
+      } yield result
+    )
+
+  def deleteTag: ZServerEndpoint[Any, Any] =
+    deleteHashtag.zServerLogic(request =>
+      for {
+        model <- ZIO.attempt(HashtagRequest.toModel(request))
+          .catchAll(e => ZIO.fail((StatusCode.BadRequest, e.getMessage)))
+        result <- hashtagService.deleteHashtag(model)
+          .as(StatusCode.Ok)
+          .catchAll {
+            case e: TaskNotFound => ZIO.fail((StatusCode.NotFound, e.message))
+            case e => ZIO.fail((StatusCode.InternalServerError, e.message))
+          }
+      } yield result
+    )
+
+
 }
 
 object TaskRouter {
 
-  val live: URLayer[TaskService, TaskRouter] =
-    ZLayer.fromFunction(new TaskRouter(_))
+  val live: URLayer[TaskService & HashtagService, TaskRouter] =
+    ZLayer.fromFunction(new TaskRouter(_, _))
 
 }

@@ -72,7 +72,7 @@ object UserDaoImpl {
               ${user.hashPassword},
               ${user.profileDescription},
               ${user.login},
-              ${user.photoUrl}
+              ${user.photoData}
             )
          """.update.run
 
@@ -85,7 +85,7 @@ object UserDaoImpl {
       val clauses = List(
         optClause("login", request.login),
         optClause("profile_description", request.profileDescription),
-        optClause("photo_url", request.photoUrl)
+        request.photoData.map(d => fr"photo_data = $d")
       ).flatten // Убираем из списка None элементы
 
       val setClause = clauses.intercalate(fr",")
@@ -124,16 +124,32 @@ object UserDaoImpl {
     implicit val putPassword: Put[Password] =
       Put[String].contramap(password => Password.unwrap(password))
 
-    implicit val getDescription: Get[Description] =
-      Get[String].map(description => Description(description))
+    implicit val getDescription: Get[Option[Description]] =
+      Get[String].map(description =>
+        description.isBlank match {
+          case true => None
+          case false => Some(Description(description))
+        }
+      )
 
-    implicit val putDescription: Put[Description] =
-      Put[String].contramap(description => Description.unwrap(description))
+    implicit val putPhotoData: Put[Option[List[Byte]]] =
+      Put[Array[Byte]].contramap(bytes => bytes.map(_.toArray).getOrElse(Array.empty))
+
+    implicit val getPhotoData: Get[Option[List[Byte]]] =
+      Get[Array[Byte]].map(bytes =>
+        bytes.isEmpty match {
+          case true => None
+          case false => Some(bytes.toList)
+        }
+      )
+
+    implicit val putDescription: Put[Option[Description]] =
+      Put[String].contramap(description => description.map(Description.unwrap).getOrElse(""))
 
     implicit val getUser: Read[User] =
-      Read[(Long, String, String, String, String, Option[String])].map {
-        case (id, email, password, description, login, photoUrl) =>
-          User(UserId(id), Email(email), Password(password), Description(description), login, photoUrl)
+      Read[(Long, String, String, Option[String], String, Option[List[Byte]])].map {
+        case (id, email, password, description, login, photo) =>
+          User(UserId(id), Email(email), Password(password), description.map(Description(_)), login, photo)
       }
 
   }

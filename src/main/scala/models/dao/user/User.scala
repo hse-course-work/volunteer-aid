@@ -6,25 +6,25 @@ case class User(
     id: UserId,
     email: Email,
     hashPassword: Password,
-    profileDescription: Description,
+    profileDescription: Option[Description],
     login: String,
-    photoUrl: Option[String])
+    photoData: Option[List[Byte]])
 
 object User {
 
   def apply(
       email: Email,
       hashPassword: Password,
-      profileDescription: Description,
+      profileDescription: Option[Description],
       login: String,
-      photoUrl: Option[String]): User =
+      photoData: Option[List[Byte]]): User =
     new User(
       id = DefaultId,
       email = email,
       hashPassword = hashPassword,
       profileDescription = profileDescription,
       login = login,
-      photoUrl = photoUrl
+      photoData = photoData
     )
 
   private val DefaultId = UserId(0)

@@ -103,7 +103,7 @@ object UserServiceImpl {
       UserId(1),
       Email("example@mail.ru"),
       Password("pssword"),
-      Description("descripton"),
+      Some(Description("descripton")),
       "default_login",
       None
     )

@@ -5,7 +5,7 @@ import models.{Description, Email, UserId}
 import models.dao.user.User
 
 @JsonCodec
-case class UserResponse(id: Long, email: String, profileDescription: String, login: String, photoUrl: Option[String])
+case class UserResponse(id: Long, email: String, profileDescription: Option[String], login: String, photoData: Option[List[Byte]])
 
 object UserResponse {
 
@@ -13,9 +13,9 @@ object UserResponse {
     UserResponse(
       UserId.unwrap(user.id),
       Email.unwrap(user.email),
-      Description.unwrap(user.profileDescription),
+      user.profileDescription.map(Description.unwrap),
       user.login,
-      user.photoUrl
+      user.photoData
     )
 
 }

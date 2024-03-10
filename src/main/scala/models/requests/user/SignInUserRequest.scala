@@ -8,9 +8,9 @@ import models.dao.user.User
 case class SignInUserRequest(
     email: String,
     password: String,
-    profileDescription: String,
+    profileDescription: Option[String],
     login: String,
-    photoUrl: Option[String])
+    photoData: Option[List[Byte]])
 
 object SignInUserRequest {
 
@@ -18,9 +18,9 @@ object SignInUserRequest {
     User(
       Email(request.email),
       Password(request.password),
-      Description(request.profileDescription),
+      request.profileDescription.map(str => Description(str)),
       request.login,
-      request.photoUrl
+      request.photoData
     )
 
 }

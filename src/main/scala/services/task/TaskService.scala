@@ -44,6 +44,10 @@ object TaskService {
 
     case class BadStatus(message: String) extends TaskException
 
+    case class TaskAlreadyExist(name: String, id: Long) extends TaskException {
+      override def message: String = s"Task with name $name already exist for user $id!"
+    }
+
     case class BadRequestForNewTask(fields: Seq[String]) extends TaskException {
       override def message: String = s"Fields: $fields in request have mistakes"
     }

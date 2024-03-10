@@ -9,9 +9,8 @@ import sttp.tapir.Schema
 @JsonCodec
 case class NewTaskRequest(
     creatorId: Long,
+    name: String,
     description: String,
-    status: String,
-    createdAt: DateTime,
     involvedCount: Int,
     x: Double,
     y: Double)
@@ -22,10 +21,11 @@ object NewTaskRequest {
   def toDao(task: NewTaskRequest): UserTask =
     UserTask(
       0L,
+      task.name,
       task.creatorId,
       task.description,
-      Status.withName(task.status),
-      task.createdAt,
+      Status.Active,
+      DateTime.now(),
       task.involvedCount,
       task.x,
       task.y

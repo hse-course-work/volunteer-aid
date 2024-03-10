@@ -5,6 +5,7 @@ import org.joda.time.DateTime
 
 case class UserTask(
     id: Long,
+    name: String,
     creatorId: Long,
     description: String,
     status: Status,

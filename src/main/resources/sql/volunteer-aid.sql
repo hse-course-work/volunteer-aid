@@ -11,6 +11,7 @@ CREATE TABLE "users" (
 
 CREATE TABLE "tasks" (
  "id" bigserial PRIMARY KEY,
+ "name" text,
  "creator_id" bigint,
  "description" text,
  "status_id" int,

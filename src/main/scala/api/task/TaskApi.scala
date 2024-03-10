@@ -1,6 +1,6 @@
 package api.task
 
-import models.requests.task.{NewTaskRequest, UpdateTaskStatus}
+import models.requests.task.{HashtagRequest, NewTaskRequest, UpdateTaskStatus}
 import models.responses.TaskResponse
 import sttp.tapir.generic.auto.schemaForCaseClass
 import sttp.tapir.json.circe.jsonBody
@@ -64,6 +64,25 @@ trait TaskApi {
     endpoint
       .delete
       .in(defaultRoute / "delete-task" / path[Int]("id"))
+      .out(statusCode)
+      .errorOut(statusCode)
+      .errorOut(stringBody)
+
+
+  protected val addHashtag =
+    endpoint
+      .post
+      .in(defaultRoute / "add-hashtag")
+      .in(jsonBody[HashtagRequest])
+      .out(statusCode)
+      .errorOut(statusCode)
+      .errorOut(stringBody)
+
+  protected val deleteHashtag =
+    endpoint
+      .delete
+      .in(defaultRoute / "delete-hashtag")
+      .in(jsonBody[HashtagRequest])
       .out(statusCode)
       .errorOut(statusCode)
       .errorOut(stringBody)

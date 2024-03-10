@@ -8,18 +8,27 @@ CREATE TABLE "users" (
  UNIQUE(email)
 );
 
-
-CREATE TABLE "tasks" (
- "id" bigserial PRIMARY KEY,
- "name" text,
- "creator_id" bigint,
- "description" text,
- "status_id" int,
- "created_at" timestamp,
- "involved_count" int,
-  "x_coord" real,
-  "y_coord" real,
+CREATE TABLE "tasks"
+(
+    "id"             bigserial PRIMARY KEY,
+    "name"           text,
+    "creator_id"     bigint,
+    "description"    text,
+    "status"         text,
+    "created_at"     timestamp,
+    "involved_count" int,
+    "x_coord"        real,
+    "y_coord"        real,
+    UNIQUE (name, creator_id)
 );
+
+CREATE TABLE "task_hashtags" (
+ "value" text,
+ "task_id" bigint,
+ UNIQUE('value', 'task_id')
+);
+
+
 
 
 CREATE TABLE "task_photos" (
@@ -42,12 +51,6 @@ CREATE TABLE "comment_photos" (
  “id” bigserial PRIMARY KEY,
  "comment_id" bigint,
  "photo_url" text
-);
-
-
-CREATE TABLE "task_hashtags" (
- "hashtag_id" int,
- "task_id" bigint
 );
 
 

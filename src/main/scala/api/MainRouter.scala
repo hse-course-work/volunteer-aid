@@ -55,6 +55,16 @@ class MainRouter(userRouter: UserRouter, taskRouter: TaskRouter, ratingRouter: R
   def deleteLike: ZServerEndpoint[Any, Any] =
     ratingRouter.deleteLike
 
+  // tag
+
+  def addHashtag: ZServerEndpoint[Any, Any] =
+    taskRouter.addTag
+
+  def deleteHashtag: ZServerEndpoint[Any, Any] =
+    taskRouter.deleteTag
+
+
+
 
 }
 

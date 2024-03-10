@@ -57,7 +57,7 @@ object UserDaoImpl {
 
     def getUserByEmail(email: Email): ConnectionIO[Option[User]] =
       sql"""
-            SELECT * FROM users WHERE emil = $email
+            SELECT * FROM users WHERE email = $email
          """
         .query[User]
         .option
@@ -65,7 +65,7 @@ object UserDaoImpl {
     def insertUser(user: User): ConnectionIO[Int] =
       sql"""
             INSERT INTO users (
-            email, hash_password, profile_description, login, photo_url
+            email, hash_password, description, login, photo_data
             )
             VALUES (
               ${user.email},
@@ -79,18 +79,15 @@ object UserDaoImpl {
     def updateInfo(request: UpdateProfileRequest): ConnectionIO[Int] = {
       val baseQuery = sql""" UPDATE users SET """
 
-      def optClause(columnName: String, valueOpt: Option[String]): Option[Fragment] =
-        valueOpt.map(value => fr"$columnName = $value")
-
       val clauses = List(
-        optClause("login", request.login),
-        optClause("profile_description", request.profileDescription),
+        request.login.map(l => fr"login = $l"),
+        request.profileDescription.map(desc => fr"description = $desc"),
         request.photoData.map(d => fr"photo_data = $d")
-      ).flatten // Убираем из списка None элементы
+      ).filter(_.nonEmpty).map(_.get)
 
-      val setClause = clauses.intercalate(fr",")
+      val whereClause = fr" WHERE id = ${request.id} "
 
-      val whereClause = fr"WHERE id = ${request.id}"
+      val setClause = clauses.reduceLeft(_ ++ fr", " ++ _)
 
       val updateQuery = baseQuery ++ setClause ++ whereClause
 
@@ -147,8 +144,8 @@ object UserDaoImpl {
       Put[String].contramap(description => description.map(Description.unwrap).getOrElse(""))
 
     implicit val getUser: Read[User] =
-      Read[(Long, String, String, Option[String], String, Option[List[Byte]])].map {
-        case (id, email, password, description, login, photo) =>
+      Read[(Long, String, String, String, Option[String], Option[List[Byte]])].map {
+        case (id, email, password, login, description, photo) =>
           User(UserId(id), Email(email), Password(password), description.map(Description(_)), login, photo)
       }
 

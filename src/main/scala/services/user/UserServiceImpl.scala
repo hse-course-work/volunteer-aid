@@ -50,7 +50,9 @@ class UserServiceImpl(dao: UserDao) extends UserService {
             .insert(newUser)
             .catchAll(e => ZIO.fail(InternalError(e)))
       }
-    } yield UserResponse.convert(newUser)
+      inserted <- dao.getByEmail(newUser.email)
+        .catchAll(e => ZIO.fail(InternalError(e)))
+    } yield UserResponse.convert(inserted.get)
 
   def updateUserInfo(updateRequest: UpdateProfileRequest): IO[UserException, Unit] = {
     for {
@@ -86,7 +88,7 @@ object UserServiceImpl {
   private def checkPassword(inputPassword: String, user: User): IO[UserException, UserResponse] =
     for {
       password <- ZIO
-        .attempt(PasswordHelper.decode(Password.unwrap(user.hashPassword)))
+        .attempt(PasswordHelper.encode(Password.unwrap(user.hashPassword)))
         .catchAll(e => ZIO.fail(InternalError(e)))
       userResponse <-
         if (inputPassword == password)

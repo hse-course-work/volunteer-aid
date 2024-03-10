@@ -48,8 +48,8 @@ object TaskService {
       override def message: String = s"Task with name $name already exist for user $id!"
     }
 
-    case class BadRequestForNewTask(fields: Seq[String]) extends TaskException {
-      override def message: String = s"Fields: $fields in request have mistakes"
+    case class BadRequest(e: Throwable) extends TaskException {
+      override def message: String = s"Bad request, ${e.getMessage}"
     }
   }
 

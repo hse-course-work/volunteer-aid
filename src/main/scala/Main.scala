@@ -87,7 +87,8 @@ object Main extends zio.ZIOAppDefault {
       router.deleteLike.tag("Rating"),
       // ----
       router.addHashtag.tag("Hashtag"),
-      router.deleteHashtag.tag("Hashtag")
+      router.deleteHashtag.tag("Hashtag"),
+      router.searchByTags.tag("Hashtag")
     )
 
   def run: ZIO[Environment with Scope, Any, Any] =

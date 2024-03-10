@@ -63,6 +63,9 @@ class MainRouter(userRouter: UserRouter, taskRouter: TaskRouter, ratingRouter: R
   def deleteHashtag: ZServerEndpoint[Any, Any] =
     taskRouter.deleteTag
 
+  def searchByTags:  ZServerEndpoint[Any, Any] =
+    taskRouter.searchByTag
+
 
 
 

@@ -8,6 +8,7 @@ import sttp.tapir.Schema
 @JsonCodec
 case class TaskResponse(
     id: Long,
+    name: String,
     creatorId: Long,
     description: String,
     status: String,
@@ -24,6 +25,7 @@ object TaskResponse {
   def convert(task: UserTask): TaskResponse =
     TaskResponse(
       task.id,
+      task.name,
       task.creatorId,
       task.description,
       task.status.name,

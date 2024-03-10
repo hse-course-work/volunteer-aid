@@ -61,12 +61,13 @@ object TaskDaoImpl {
     def insertQuery(task: UserTask): ConnectionIO[Int] =
       sql"""
             INSERT INTO tasks (
-            creator_id, description, status_id, created_at, involved_count, x_coord, y_coord
+              name, creator_id, description, status, created_at, involved_count, x_coord, y_coord
             )
             VALUES (
+              ${task.name},
               ${task.creatorId},
               ${task.description},
-              ${task.status.id},
+              ${task.status},
               ${task.createdAt},
               ${task.involvedCount},
               ${task.xCoord},
@@ -76,7 +77,7 @@ object TaskDaoImpl {
 
     def updateStatus(id: Long, newStatus: Status): ConnectionIO[Int] =
       sql"""
-            UPDATE tasks SET status = $newStatus
+            UPDATE tasks SET status = ${newStatus}
             WHERE id = $id
          """
         .update
@@ -84,7 +85,7 @@ object TaskDaoImpl {
 
     private val baseGetQuery =
       sql"""
-            SELECT id, creator_id, description, status_id, created_at, involved_count
+            SELECT id, name, creator_id, description, status, created_at, involved_count, x_coord, y_coord
             FROM tasks WHERE
          """
 
@@ -99,7 +100,7 @@ object TaskDaoImpl {
         .to[Seq]
 
     def getByStatus(status: Status): ConnectionIO[Seq[UserTask]] =
-      (baseGetQuery ++ sql" status = ${status.id} ")
+      (baseGetQuery ++ sql" status = ${status} ")
         .query[UserTask]
         .to[Seq]
 
@@ -112,15 +113,15 @@ object TaskDaoImpl {
   object Mapping extends DoobieMapping {
 
     implicit val putStatus: Put[Status] =
-      Put[Int].tcontramap[Status](status => status.id)
+      Put[String].tcontramap[Status](status => status.name)
 
     implicit val getStatus: Get[Status] =
-      Get[Int].map(id => Status(id))
+      Get[String].map(name => Status.withName(name))
 
     implicit val readUserTask: Read[UserTask] =
-      Read[(Long, Long, String, Int, DateTime, Int, Double, Double)].map {
-        case (id, creatorId, description, statusId, createdAt, involvedCount, x, y) =>
-          UserTask(id, creatorId, description, Status(statusId), createdAt, involvedCount, x, y)
+      Read[(Long, String, Long, String, Status, DateTime, Int, Double, Double)].map {
+        case (id, name, creatorId, description, status, createdAt, involvedCount, x, y) =>
+          UserTask(id, name, creatorId, description, status, createdAt, involvedCount, x, y)
       }
 
   }

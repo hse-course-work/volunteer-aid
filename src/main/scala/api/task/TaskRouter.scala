@@ -41,6 +41,7 @@ class TaskRouter(taskService: TaskService) extends TaskApi {
         .createTask(newTask)
         .map(task => (StatusCode.Ok, TaskResponse.convert(task)))
         .catchAll {
+          case e: TaskAlreadyExist => ZIO.fail((StatusCode.BadRequest, e.message))
           case e: CreatorProfileNotExist => ZIO.fail((StatusCode.BadRequest, e.message))
           case e: TaskNotFound => ZIO.fail((StatusCode.NotFound, e.message))
           case e => ZIO.fail((StatusCode.InternalServerError, e.message))

@@ -1,8 +1,9 @@
-CREATE TABLE IF NOT EXISTS users (
-    id bigserial PRIMARY KEY,
-    email VARCHAR(255) NOT NULL,
-    hash_password VARCHAR(255) NOT NULL,
-    profile_description TEXT,
-    login VARCHAR(255) NOT NULL,
-    photo_url VARCHAR(255) NULL
+CREATE TABLE "users" (
+ "id" bigserial PRIMARY KEY,
+ "email" text,
+ "hash_password" text,
+ "login" text,
+ "description" text,
+ "photo_data" BYTEA,
+ UNIQUE(email)
 );

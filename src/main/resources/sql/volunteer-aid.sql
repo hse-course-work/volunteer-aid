@@ -4,7 +4,7 @@ CREATE TABLE "users" (
  "hash_password" text,
  "login" text,
  "description" text,
- "photo_data" BYTEA
+ "photo_data" BYTEA,
  UNIQUE(email)
 );
 

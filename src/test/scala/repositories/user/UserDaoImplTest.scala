@@ -65,11 +65,11 @@ object UserDaoImplTest extends ZIOSpecDefault {
   def test1 = {
     test("successful insert and get user") {
       val testUser = User(
-        Email("example@mail.ru"),
-        Password("pssword"),
-        Description("descripton"),
-        "default_description",
-        None
+        email = Email("example@mail.ru"),
+        hashPassword = Password("pssword"),
+        profileDescription = Some(Description("descripton")),
+        login = "login",
+        photoData = None
       )
       for {
         dao <- ZIO.service[UserDao]

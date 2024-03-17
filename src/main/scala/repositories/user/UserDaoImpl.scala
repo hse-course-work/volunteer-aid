@@ -1,16 +1,15 @@
 package repositories.user
 
-import cats.implicits.toFoldableOps
-import doobie.{ConnectionIO, Fragment, Get, Put, Read, Write}
-import zio.{Task, URLayer, ZLayer}
-import doobie.util.transactor.Transactor
 import doobie.implicits._
 import doobie.util.meta.{MetaConstructors, SqlMetaInstances}
+import doobie.util.transactor.Transactor
+import doobie.{ConnectionIO, Get, Put, Read}
 import models._
 import models.dao.user.User
 import models.requests.user.UpdateProfileRequest
 import repositories.user.UserDaoImpl.Sql
 import zio.interop.catz._
+import zio.{Task, URLayer, ZLayer}
 
 class UserDaoImpl(master: Transactor[Task]) extends UserDao {
 

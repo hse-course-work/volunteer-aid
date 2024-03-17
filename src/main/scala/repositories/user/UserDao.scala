@@ -1,8 +1,8 @@
 package repositories.user
 
-import models.{Email, UserId}
 import models.dao.user.User
 import models.requests.user.UpdateProfileRequest
+import models.{Email, UserId}
 import zio.Task
 
 trait UserDao {

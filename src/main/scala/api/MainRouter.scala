@@ -45,9 +45,18 @@ class MainRouter(userRouter: UserRouter, taskRouter: TaskRouter, ratingRouter: R
   def deleteTask: ZServerEndpoint[Any, Any] =
     taskRouter.delete
 
+  def takeTaskInWork: ZServerEndpoint[Any, Any] =
+    taskRouter.takeTaskInWork
+
+  def getTakenTask: ZServerEndpoint[Any, Any] =
+    taskRouter.getTakenTasks
+
+  def removeFromWork: ZServerEndpoint[Any, Any] =
+    taskRouter.removeTaskFromWork
+
   // rating
-  def getBy: ZServerEndpoint[Any, Any] =
-    ratingRouter.getBy
+  def getLikesBy: ZServerEndpoint[Any, Any] =
+    ratingRouter.getLikesBy
 
   def putLike: ZServerEndpoint[Any, Any] =
     ratingRouter.putLike

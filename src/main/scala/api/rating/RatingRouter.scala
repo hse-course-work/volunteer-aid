@@ -10,7 +10,7 @@ import sttp.tapir.ztapir.{RichZEndpoint, ZServerEndpoint}
 
 class RatingRouter(ratingService: RatingService) extends RatingApi {
 
-  def getBy: ZServerEndpoint[Any, Any] =
+  def getLikesBy: ZServerEndpoint[Any, Any] =
     get.zServerLogic { case (filterName, id) =>
       ZIO
         .attempt(Filter.withName(filterName, id))

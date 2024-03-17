@@ -5,7 +5,7 @@ import models.dao.task.UserTask.Status
 import models.requests.task.NewTaskRequest
 import repositories.task.TaskDao.Filter
 import services.task.TaskService.TaskException
-import zio.{IO, Task}
+import zio.{IO, Task, UIO}
 
 trait TaskService {
 
@@ -20,6 +20,12 @@ trait TaskService {
   def getTasksCreateBy(creatorId: Long): IO[TaskException, Seq[UserTask]]
 
   def deleteTask(id: Long): IO[TaskException, Unit]
+
+  def getTakenTasks(userId: Long): IO[TaskException, Seq[UserTask]]
+
+  def takeTaskInWork(userId: Long, taskId: Long): Task[Unit]
+
+  def removeFromTaken(userId: Long, taskId: Long): Task[Unit]
 
 }
 

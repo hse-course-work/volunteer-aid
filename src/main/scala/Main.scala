@@ -82,7 +82,11 @@ object Main extends zio.ZIOAppDefault {
       router.getSomeTasksByCreator.tag("Tasks"),
       router.deleteTask.tag("Tasks"),
       // ----
-      router.getBy.tag("Rating"),
+      router.getTakenTask.tag("Task"),
+      router.takeTaskInWork.tag("Task"),
+      router.removeFromWork.tag("Task"),
+      // ----
+      router.getLikesBy.tag("Rating"),
       router.putLike.tag("Rating"),
       router.deleteLike.tag("Rating"),
       // ----

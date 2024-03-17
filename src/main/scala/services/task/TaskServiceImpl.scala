@@ -12,7 +12,7 @@ import services.task.TaskService.TaskException._
 import services.user.UserService
 import services.user.UserService.UserException
 import services.user.UserService.UserException.UserNotFound
-import zio.{&, IO, URLayer, ZIO, ZLayer}
+import zio.{&, IO, Task, UIO, URIO, URLayer, ZIO, ZLayer}
 
 class TaskServiceImpl(taskDao: TaskDao, userService: UserService) extends TaskService {
 
@@ -107,6 +107,26 @@ class TaskServiceImpl(taskDao: TaskDao, userService: UserService) extends TaskSe
       _ <- taskDao
         .softDelete(id)
         .catchAll(e => ZIO.fail(InternalError(e)))
+    } yield ()
+
+  def getTakenTasks(userId: Long): IO[TaskException, Seq[UserTask]] =
+    taskDao.getTakenTasks(userId)
+      .catchAll(e => ZIO.fail(InternalError(e)))
+
+  def takeTaskInWork(userId: Long, taskId: Long): Task[Unit] =
+    for {
+      taken <- taskDao.getTakenTasks(userId)
+      _ <- ZIO.when(!taken.map(_.id).contains(taskId))(
+        taskDao.takeTaskInWork(userId, taskId)
+      )
+    } yield ()
+
+  def removeFromTaken(userId: Long, taskId: Long): Task[Unit] =
+    for {
+      taken <- taskDao.getTakenTasks(userId)
+      _ <- ZIO.when(taken.map(_.id).contains(taskId))(
+        taskDao.removeTakenTask(userId, taskId)
+      )
     } yield ()
 }
 

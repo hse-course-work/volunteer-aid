@@ -66,9 +66,10 @@ CREATE TABLE "task_statuses" (
 );
 
 
-CREATE TABLE "personal_tasks" (
+CREATE TABLE "taken_tasks" (
  "user_id" bigint,
- "task_id" bigint
+ "task_id" bigint,
+ UNIQUE("user_id", "task_id")
 );
 
 

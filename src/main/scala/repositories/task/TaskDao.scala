@@ -13,6 +13,11 @@ trait TaskDao {
   def getBy(filter: Filter): Task[Seq[UserTask]]
   def softDelete(id: Long): Task[Unit]
 
+  def getTakenTasks(userId: Long): Task[Seq[UserTask]]
+  def takeTaskInWork(userId: Long, taskId: Long): Task[Unit]
+
+  def removeTakenTask(userId: Long, taskId: Long): Task[Unit]
+
 }
 
 object TaskDao {

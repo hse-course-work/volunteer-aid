@@ -98,5 +98,28 @@ trait TaskApi {
       .errorOut(stringBody)
 
 
+  protected val getTakenTasksByUser =
+    endpoint
+      .get
+      .in(defaultRoute / "taken-tasks" / path[Long]("user_id"))
+      .out(statusCode)
+      .out(jsonBody[List[TaskResponse]])
+      .errorOut(statusCode)
+      .errorOut(stringBody)
+
+  protected val takeTaskForWork =
+    endpoint
+      .get
+      .in(defaultRoute / "take" / path[Long]("user_id") / path[Long]("task_id"))
+      .out(statusCode)
+      .errorOut(stringBody)
+
+  protected val removeTakenTaskForWork =
+    endpoint
+      .get
+      .in(defaultRoute / "remove" / path[Long]("user_id") / path[Long]("task_id"))
+      .out(statusCode)
+      .errorOut(stringBody)
+
 
 }

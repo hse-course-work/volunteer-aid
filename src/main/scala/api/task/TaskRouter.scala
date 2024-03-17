@@ -85,12 +85,14 @@ class TaskRouter(taskService: TaskService, hashtagService: HashtagService) exten
         }
     )
 
-  def addTag:  ZServerEndpoint[Any, Any] =
+  def addTag: ZServerEndpoint[Any, Any] =
     addHashtag.zServerLogic(request =>
       for {
-        model <- ZIO.attempt(HashtagRequest.toModel(request))
+        model <- ZIO
+          .attempt(HashtagRequest.toModel(request))
           .catchAll(e => ZIO.fail((StatusCode.BadRequest, e.getMessage)))
-        result <- hashtagService.addHashtag(model)
+        result <- hashtagService
+          .addHashtag(model)
           .as(StatusCode.Ok)
           .catchAll {
             case e: TaskNotFound => ZIO.fail((StatusCode.NotFound, e.message))
@@ -102,9 +104,11 @@ class TaskRouter(taskService: TaskService, hashtagService: HashtagService) exten
   def deleteTag: ZServerEndpoint[Any, Any] =
     deleteHashtag.zServerLogic(request =>
       for {
-        model <- ZIO.attempt(HashtagRequest.toModel(request))
+        model <- ZIO
+          .attempt(HashtagRequest.toModel(request))
           .catchAll(e => ZIO.fail((StatusCode.BadRequest, e.getMessage)))
-        result <- hashtagService.deleteHashtag(model)
+        result <- hashtagService
+          .deleteHashtag(model)
           .as(StatusCode.Ok)
           .catchAll {
             case e: TaskNotFound => ZIO.fail((StatusCode.NotFound, e.message))
@@ -115,7 +119,8 @@ class TaskRouter(taskService: TaskService, hashtagService: HashtagService) exten
 
   def searchByTag: ZServerEndpoint[Any, Any] =
     getTasksByTag.zServerLogic(request =>
-      hashtagService.getTasksByHashtags(request.tags)
+      hashtagService
+        .getTasksByHashtags(request.tags)
         .map(result => (StatusCode.Ok, result.map(TaskResponse.convert).toList))
         .catchAll {
           case e: BadRequest => ZIO.fail((StatusCode.BadRequest, e.message))
@@ -123,6 +128,33 @@ class TaskRouter(taskService: TaskService, hashtagService: HashtagService) exten
         }
     )
 
+  def getTakenTasks: ZServerEndpoint[Any, Any] =
+    getTakenTasksByUser.zServerLogic(request =>
+      taskService
+        .getTakenTasks(request)
+        .map(result => (StatusCode.Ok, result.map(TaskResponse.convert).toList))
+        .catchAll(e => ZIO.fail((StatusCode.InternalServerError, e.message)))
+    )
+
+  def takeTaskInWork: ZServerEndpoint[Any, Any] =
+    takeTaskForWork.zServerLogic(request =>
+      taskService
+        .takeTaskInWork(request._1, request._2)
+        .mapBoth(
+          e => e.getMessage,
+          _ => StatusCode.Ok
+        )
+    )
+
+  def removeTaskFromWork: ZServerEndpoint[Any, Any] =
+    removeTakenTaskForWork.zServerLogic(request =>
+      taskService
+        .removeFromTaken(request._1, request._2)
+        .mapBoth(
+          e => e.getMessage,
+          _ => StatusCode.Ok
+        )
+    )
 
 }
 

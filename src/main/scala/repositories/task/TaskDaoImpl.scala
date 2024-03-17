@@ -9,7 +9,7 @@ import models.dao.task.UserTask.Status
 import org.joda.time.DateTime
 import repositories.task.TaskDao.Filter
 import repositories.task.TaskDao.Filter._
-import repositories.task.TaskDaoImpl.Sql
+import repositories.task.TaskDaoImpl.{Sql, TakenTaskSql}
 import utils.DoobieMapping
 import zio.{Task, URLayer, ZLayer}
 import zio.interop.catz._
@@ -48,7 +48,22 @@ class TaskDaoImpl(master: Transactor[Task]) extends TaskDao {
       .transact(master)
       .unit
 
+  def getTakenTasks(userId: Long): Task[Seq[UserTask]] =
+    TakenTaskSql
+      .getByUser(userId)
+      .transact(master)
 
+  def takeTaskInWork(userId: Long, taskId: Long): Task[Unit] =
+    TakenTaskSql
+      .insertTakeTask(userId, taskId)
+      .transact(master)
+      .unit
+
+  def removeTakenTask(userId: Long, taskId: Long): Task[Unit] =
+    TakenTaskSql
+      .removeTaken(userId, taskId)
+      .transact(master)
+      .unit
 }
 
 object TaskDaoImpl {
@@ -95,17 +110,45 @@ object TaskDaoImpl {
         .option
 
     def getByCreator(creatorId: Long): ConnectionIO[Seq[UserTask]] =
-      (baseGetQuery ++ sql" creator_id = $creatorId ")
+      (baseGetQuery ++ sql" creator_id = $creatorId AND status != ${Status.Delete}")
         .query[UserTask]
         .to[Seq]
 
     def getByStatus(status: Status): ConnectionIO[Seq[UserTask]] =
-      (baseGetQuery ++ sql" status = ${status} ")
+      (baseGetQuery ++ sql" status = $status ")
         .query[UserTask]
         .to[Seq]
 
     def deleteTask(id: Long): ConnectionIO[Int] =
       updateStatus(id, Status.Delete)
+
+  }
+
+  object TakenTaskSql {
+    import Mapping._
+    def getByUser(id: Long): ConnectionIO[Seq[UserTask]] =
+      sql"""
+            SELECT id, name, creator_id, description, status, created_at, involved_count, x_coord, y_coord
+                  FROM tasks WHERE id IN (
+               SELECT task_id FROM taken_tasks WHERE user_id = $id
+            )
+         """
+        .query[UserTask]
+        .to[Seq]
+
+    def insertTakeTask(userId: Long, taskId: Long): ConnectionIO[Int] =
+      sql"""
+            INSERT INTO taken_tasks (user_id, task_id) VALUES ($userId, $taskId)
+         """
+        .update
+        .run
+
+    def removeTaken(userId: Long, taskId: Long): ConnectionIO[Int] =
+      sql"""
+            DELETE FROM taken_tasks WHERE user_id = $userId AND task_id = $taskId
+         """
+        .update
+        .run
 
 
   }

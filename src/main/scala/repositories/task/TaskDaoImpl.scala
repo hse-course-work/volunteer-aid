@@ -110,7 +110,7 @@ object TaskDaoImpl {
         .option
 
     def getByCreator(creatorId: Long): ConnectionIO[Seq[UserTask]] =
-      (baseGetQuery ++ sql" creator_id = $creatorId AND status != ${Status.Delete}")
+      (baseGetQuery ++ sql" creator_id = $creatorId AND status != ${Status.Delete.name}")
         .query[UserTask]
         .to[Seq]
 

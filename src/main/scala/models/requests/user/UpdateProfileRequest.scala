@@ -4,7 +4,7 @@ import io.circe.generic.JsonCodec
 
 @JsonCodec
 case class UpdateProfileRequest(
-    id: Int,
+    id: Long,
     profileDescription: Option[String],
     login: Option[String],
     photoData: Option[List[Byte]])

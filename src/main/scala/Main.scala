@@ -4,11 +4,10 @@ import api.task.TaskRouter
 import api.user.UserRouter
 import cats.syntax.all._
 import models.dao.task.UserTask
-import org.http4s.{HttpRoutes, _}
+import org.http4s._
 import org.http4s.blaze.server.BlazeServerBuilder
 import org.http4s.server.Router
 import repositories.DbConfigs
-import repositories.user.{UserDao, UserDaoImpl}
 import services.user.UserServiceImpl
 import sttp.tapir.server.http4s.ztapir.ZHttp4sServerInterpreter
 import sttp.tapir.swagger.bundle.SwaggerInterpreter
@@ -18,6 +17,7 @@ import pureconfig.generic.auto._
 import repositories.hashtags.HashtagDaoImpl
 import repositories.rating.LikeDaoImpl
 import repositories.task.TaskDaoImpl
+import repositories.user.{UserDao, UserDaoImpl}
 import services.hashtag.HashtagServiceImpl
 import services.rating.RatingServiceImpl
 import services.task.TaskServiceImpl

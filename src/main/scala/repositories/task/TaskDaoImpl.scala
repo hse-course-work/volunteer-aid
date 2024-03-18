@@ -53,6 +53,11 @@ class TaskDaoImpl(master: Transactor[Task]) extends TaskDao {
       .getByUser(userId)
       .transact(master)
 
+  def getUsersWhoTakeTask(taskId: Long): Task[Seq[Long]] =
+    TakenTaskSql
+      .getUsersTakeTask(taskId)
+      .transact(master)
+
   def takeTaskInWork(userId: Long, taskId: Long): Task[Unit] =
     TakenTaskSql
       .insertTakeTask(userId, taskId)
@@ -134,6 +139,11 @@ object TaskDaoImpl {
             )
          """
         .query[UserTask]
+        .to[Seq]
+
+    def getUsersTakeTask(id: Long): ConnectionIO[Seq[Long]] =
+      sql"""SELECT user_id FROM taken_tasks WHERE task_id = $id"""
+        .query[Long]
         .to[Seq]
 
     def insertTakeTask(userId: Long, taskId: Long): ConnectionIO[Int] =

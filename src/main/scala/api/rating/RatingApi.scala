@@ -13,7 +13,7 @@ trait RatingApi {
   protected val get =
     endpoint
       .get
-      .in(defaultRoute / path[String](name = "filter") / path[Int](name = "id"))
+      .in(defaultRoute / path[String](name = "filter") / path[Long](name = "id"))
       .out(statusCode)
       .out(jsonBody[LikesResponse])
       .errorOut(statusCode)

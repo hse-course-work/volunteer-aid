@@ -28,7 +28,32 @@ CREATE TABLE "task_hashtags" (
  UNIQUE('value', 'task_id')
 );
 
+CREATE TABLE "taken_tasks" (
+ "user_id" bigint,
+ "task_id" bigint,
+ UNIQUE("user_id", "task_id")
+);
 
+
+CREATE TABLE "likes" (
+ "id" bigserial PRIMARY KEY,
+ "user_id_to" bigint,
+ "task_id" bigint,
+ "message" text,
+ "created_at" timestamp
+ UNIQUE(user_id_to, task_id)
+);
+
+CREATE TABLE "pushes" (
+ "id" bigserial PRIMARY KEY,
+ "user_id_to" bigint,
+ "task_id_for" bigint,
+ "message" text,
+ "created_at" timestamp
+);
+
+
+------
 
 
 CREATE TABLE "task_photos" (
@@ -52,85 +77,3 @@ CREATE TABLE "comment_photos" (
  "comment_id" bigint,
  "photo_url" text
 );
-
-
-CREATE TABLE "hashtags" (
- "id" serial PRIMARY KEY,
- "value" text
-);
-
-
-CREATE TABLE "task_statuses" (
- "id" serial PRIMARY KEY,
- "value" text
-);
-
-
-CREATE TABLE "taken_tasks" (
- "user_id" bigint,
- "task_id" bigint,
- UNIQUE("user_id", "task_id")
-);
-
-
-CREATE TABLE "likes" (
- "id" bigserial PRIMARY KEY,
- "user_id_to" bigint,
- "task_id" bigint,
- "message" text,
- "created_at" timestamp
- UNIQUE(user_id_to, task_id)
-);
-
-
-CREATE TABLE "pushes" (
- "id" bigserial PRIMARY KEY,
- "user_id_to" bigint,
- "commen_id" bigint,
- "message" text,
- "created_at" timestamp
-);
-
-
-
-ALTER TABLE "task_photos" ADD FOREIGN KEY ("task_id") REFERENCES "tasks" ("id");
-
-
-ALTER TABLE "comment_photos" ADD FOREIGN KEY ("comment_id") REFERENCES "comments" ("id");
-
-
-ALTER TABLE "comments" ADD FOREIGN KEY ("author_id") REFERENCES "users" ("id");
-
-
-ALTER TABLE "comments" ADD FOREIGN KEY ("task_id") REFERENCES "tasks" ("id");
-
-
-ALTER TABLE "tasks" ADD FOREIGN KEY ("creator_id") REFERENCES "users" ("id");
-
-
-ALTER TABLE "task_hashtags" ADD FOREIGN KEY ("task_id") REFERENCES "tasks" ("id");
-
-
-ALTER TABLE "task_hashtags" ADD FOREIGN KEY ("hashtag_id") REFERENCES "hashtags" ("id");
-
-
-ALTER TABLE "tasks" ADD FOREIGN KEY ("status_id") REFERENCES "task_statuses" ("id");
-
-
-ALTER TABLE "personal_tasks" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
-
-
-ALTER TABLE "personal_tasks" ADD FOREIGN KEY ("task_id") REFERENCES "tasks" ("id");
-
-
-ALTER TABLE "likes" ADD FOREIGN KEY ("user_id_to") REFERENCES "users" ("id");
-
-
-ALTER TABLE "likes" ADD FOREIGN KEY ("task_id") REFERENCES "tasks" ("id");
-
-
-ALTER TABLE "pushes" ADD FOREIGN KEY ("user_id_to") REFERENCES "users" ("id");
-
-
-ALTER TABLE "pushes" ADD FOREIGN KEY ("user_id_to") REFERENCES "comments" ("id");
-

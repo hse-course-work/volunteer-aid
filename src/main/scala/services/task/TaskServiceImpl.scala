@@ -7,6 +7,7 @@ import models.dao.user.User
 import models.requests.task.NewTaskRequest
 import repositories.task.TaskDao
 import repositories.task.TaskDao.Filter
+import services.push.PushService
 import services.task.TaskService.TaskException
 import services.task.TaskService.TaskException._
 import services.user.UserService
@@ -14,7 +15,7 @@ import services.user.UserService.UserException
 import services.user.UserService.UserException.UserNotFound
 import zio.{&, IO, Task, UIO, URIO, URLayer, ZIO, ZLayer}
 
-class TaskServiceImpl(taskDao: TaskDao, userService: UserService) extends TaskService {
+class TaskServiceImpl(taskDao: TaskDao, userService: UserService, pushService: PushService) extends TaskService {
 
   def createTask(task: NewTaskRequest): IO[TaskException, UserTask] =
     for {
@@ -66,6 +67,9 @@ class TaskServiceImpl(taskDao: TaskDao, userService: UserService) extends TaskSe
       task <- taskDao
         .get(taskId)
         .catchAll(e => ZIO.fail(InternalError(e)))
+      _ <- pushService
+        .sendPushWhenChangedStatus(newStatus, task.get)
+        .catchAll(e => ZIO.fail(InternalError(e)))
     } yield task.get
 
   def getTask(id: Long): IO[TaskException, UserTask] =
@@ -107,10 +111,13 @@ class TaskServiceImpl(taskDao: TaskDao, userService: UserService) extends TaskSe
       _ <- taskDao
         .softDelete(id)
         .catchAll(e => ZIO.fail(InternalError(e)))
+      _ <- pushService.sendPushWhenChangedStatus(Status.Delete, taskOpt.get)
+        .catchAll(e => ZIO.fail(InternalError(e)))
     } yield ()
 
   def getTakenTasks(userId: Long): IO[TaskException, Seq[UserTask]] =
-    taskDao.getTakenTasks(userId)
+    taskDao
+      .getTakenTasks(userId)
       .catchAll(e => ZIO.fail(InternalError(e)))
 
   def takeTaskInWork(userId: Long, taskId: Long): Task[Unit] =
@@ -119,6 +126,7 @@ class TaskServiceImpl(taskDao: TaskDao, userService: UserService) extends TaskSe
       _ <- ZIO.when(!taken.map(_.id).contains(taskId))(
         taskDao.takeTaskInWork(userId, taskId)
       )
+      _ <- pushService.sendPushWhenUserTakeYourTask(userId, taken.find(_.id == taskId).get)
     } yield ()
 
   def removeFromTaken(userId: Long, taskId: Long): Task[Unit] =
@@ -132,7 +140,7 @@ class TaskServiceImpl(taskDao: TaskDao, userService: UserService) extends TaskSe
 
 object TaskServiceImpl {
 
-  val live: URLayer[TaskDao & UserService, TaskService] =
-    ZLayer.fromFunction(new TaskServiceImpl(_, _))
+  val live: URLayer[TaskDao & UserService & PushService, TaskService] =
+    ZLayer.fromFunction(new TaskServiceImpl(_, _, _))
 
 }

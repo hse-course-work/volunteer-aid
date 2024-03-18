@@ -1,4 +1,5 @@
 import api.MainRouter
+import api.push.PushRouter
 import api.rating.RatingRouter
 import api.task.TaskRouter
 import api.user.UserRouter
@@ -15,10 +16,12 @@ import sttp.tapir.ztapir._
 import zio.interop.catz._
 import pureconfig.generic.auto._
 import repositories.hashtags.HashtagDaoImpl
+import repositories.push.PushDaoImpl
 import repositories.rating.LikeDaoImpl
 import repositories.task.TaskDaoImpl
 import repositories.user.{UserDao, UserDaoImpl}
 import services.hashtag.HashtagServiceImpl
+import services.push.PushServiceImpl
 import services.rating.RatingServiceImpl
 import services.task.TaskServiceImpl
 import zio.{Scope, Task, ULayer, URLayer, ZIO, ZLayer}
@@ -64,7 +67,12 @@ object Main extends zio.ZIOAppDefault {
 
       // hashtag
       HashtagDaoImpl.live,
-      HashtagServiceImpl.live
+      HashtagServiceImpl.live,
+
+      // push
+      PushDaoImpl.live,
+      PushServiceImpl.live,
+      PushRouter.live
     )
 
   def getEndpoints(router: MainRouter):  List[ZServerEndpoint[Any, Any]] =
@@ -92,7 +100,9 @@ object Main extends zio.ZIOAppDefault {
       // ----
       router.addHashtag.tag("Hashtag"),
       router.deleteHashtag.tag("Hashtag"),
-      router.searchByTags.tag("Hashtag")
+      router.searchByTags.tag("Hashtag"),
+      // ----
+      router.getPushesForUser.tag("Push")
     )
 
   def run: ZIO[Environment with Scope, Any, Any] =

@@ -1,5 +1,6 @@
 package api
 
+import api.push.PushRouter
 import api.rating.RatingRouter
 import api.task.TaskRouter
 import api.user.UserRouter
@@ -7,7 +8,7 @@ import models.responses.UserResponse
 import sttp.tapir.ztapir.ZServerEndpoint
 import zio.{&, Task, URLayer, ZLayer}
 
-class MainRouter(userRouter: UserRouter, taskRouter: TaskRouter, ratingRouter: RatingRouter) {
+class MainRouter(userRouter: UserRouter, taskRouter: TaskRouter, ratingRouter: RatingRouter, pushRouter: PushRouter) {
 
   // user
   def getUser: ZServerEndpoint[Any, Any] =
@@ -72,17 +73,20 @@ class MainRouter(userRouter: UserRouter, taskRouter: TaskRouter, ratingRouter: R
   def deleteHashtag: ZServerEndpoint[Any, Any] =
     taskRouter.deleteTag
 
-  def searchByTags:  ZServerEndpoint[Any, Any] =
+  def searchByTags: ZServerEndpoint[Any, Any] =
     taskRouter.searchByTag
 
+  // push
 
+  def getPushesForUser: ZServerEndpoint[Any, Any] =
+    pushRouter.getPushesForUser
 
 
 }
 
 object MainRouter {
 
-  val live: URLayer[UserRouter & TaskRouter & RatingRouter, MainRouter] =
-    ZLayer.fromFunction(new MainRouter(_, _, _))
+  val live: URLayer[UserRouter & TaskRouter & RatingRouter & PushRouter, MainRouter] =
+    ZLayer.fromFunction(new MainRouter(_, _, _, _))
 
 }

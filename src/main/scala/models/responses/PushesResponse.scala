@@ -22,6 +22,8 @@ case class PushResponse(
     id: Long,
     userIdTo: Long,
     taskIdFor: Long,
+    taskForName: String,
+    taskForAuthorLogin: String,
     message: String,
     createdAt: DateTime)
 
@@ -31,6 +33,4 @@ object PushResponse {
 
   implicit lazy val sPushResponse: Schema[PushResponse] = Schema.derived
 
-  def convertFromDao(push: Push): PushResponse =
-    PushResponse(push.id, push.userIdTo, push.taskIdFor, push.message, push.createdAt)
 }

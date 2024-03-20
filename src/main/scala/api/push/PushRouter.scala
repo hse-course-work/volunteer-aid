@@ -12,7 +12,7 @@ class PushRouter(pushService: PushService) extends PushApi {
     get.zServerLogic { userId =>
       pushService.getByUser(userId)
         .mapBoth(e => e.getMessage,
-          result => (StatusCode.Ok, PushesResponse(result.map(PushResponse.convertFromDao)))
+          result => (StatusCode.Ok, PushesResponse(result))
         )
     }
 

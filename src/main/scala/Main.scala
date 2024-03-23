@@ -1,6 +1,7 @@
 import api.MainRouter
 import api.push.PushRouter
 import api.rating.RatingRouter
+import api.report.ReportRouter
 import api.task.TaskRouter
 import api.user.UserRouter
 import cats.syntax.all._
@@ -18,11 +19,13 @@ import pureconfig.generic.auto._
 import repositories.hashtags.HashtagDaoImpl
 import repositories.push.PushDaoImpl
 import repositories.rating.LikeDaoImpl
+import repositories.reports.ReportDaoImpl
 import repositories.task.TaskDaoImpl
 import repositories.user.{UserDao, UserDaoImpl}
 import services.hashtag.HashtagServiceImpl
 import services.push.PushServiceImpl
 import services.rating.RatingServiceImpl
+import services.reports.ReportServiceImpl
 import services.task.TaskServiceImpl
 import zio.{Scope, Task, ULayer, URLayer, ZIO, ZLayer}
 import utils.{MasterTransactor, PureConfig}
@@ -72,7 +75,12 @@ object Main extends zio.ZIOAppDefault {
       // push
       PushDaoImpl.live,
       PushServiceImpl.live,
-      PushRouter.live
+      PushRouter.live,
+
+      // report
+      ReportDaoImpl.live,
+      ReportServiceImpl.live,
+      ReportRouter.live,
     )
 
   def getEndpoints(router: MainRouter):  List[ZServerEndpoint[Any, Any]] =
@@ -102,7 +110,12 @@ object Main extends zio.ZIOAppDefault {
       router.deleteHashtag.tag("Hashtag"),
       router.searchByTags.tag("Hashtag"),
       // ----
-      router.getPushesForUser.tag("Push")
+      router.getPushesForUser.tag("Push"),
+      // ----
+      router.addUserReport.tag("Report"),
+      router.deleteUserReport.tag("Report"),
+      router.getReportForUser.tag("Report"),
+      router.getTasksReportForUser.tag("Report"),
     )
 
   def run: ZIO[Environment with Scope, Any, Any] =

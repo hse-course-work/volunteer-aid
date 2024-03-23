@@ -1,7 +1,6 @@
 package models.responses
 
 import io.circe.generic.JsonCodec
-import models.dao.push.Push
 import org.joda.time.DateTime
 import sttp.tapir.Schema
 
@@ -21,9 +20,6 @@ object PushesResponse {
 case class PushResponse(
     id: Long,
     userIdTo: Long,
-    taskIdFor: Long,
-    taskForName: String,
-    taskForAuthorLogin: String,
     message: String,
     createdAt: DateTime)
 

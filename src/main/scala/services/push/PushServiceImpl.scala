@@ -15,27 +15,38 @@ import zio.{&, Task, URLayer, ZIO, ZLayer}
 class PushServiceImpl(taskDao: TaskDao, pushDao: PushDao, userDao: UserDao) extends PushService {
 
   def getByUser(userId: Long): Task[Seq[PushResponse]] =
-    for {
-      pushes <- pushDao.getUserPushes(userId)
-      tasks <- ZIO.foreach(pushes) { push =>
-        taskDao.get(push.taskIdFor)
-      }
-      result <- ZIO.foreach(tasks.zip(pushes)) { case (task, push) =>
-        userDao
-          .getById(UserId(task.get.creatorId))
-          .map(user =>
-            PushResponse(
-              id = push.id,
-              userIdTo = push.userIdTo,
-              taskIdFor = push.taskIdFor,
-              taskForName = task.get.name,
-              taskForAuthorLogin = user.get.login,
-              message = push.message,
-              createdAt = push.createdAt
-            )
+    pushDao
+      .getUserPushes(userId)
+      .map(pushes =>
+        pushes.map(push =>
+          PushResponse(
+            id = push.id,
+            userIdTo = push.userIdTo,
+            message = push.message,
+            createdAt = push.createdAt
           )
-      }
-    } yield result
+        )
+      )
+
+//  def getByUser(userId: Long): Task[Seq[PushResponse]] =
+//    for {
+//      pushes <- pushDao.getUserPushes(userId)
+//      tasks <- ZIO.foreach(pushes) { push =>
+//        taskDao.get(push.taskIdFor)
+//      }
+//      result <- ZIO.foreach(tasks.zip(pushes)) { case (task, push) =>
+//        userDao
+//          .getById(UserId(task.get.creatorId))
+//          .map(user =>
+//            PushResponse(
+//              id = push.id,
+//              userIdTo = push.userIdTo,
+//              message = push.message,
+//              createdAt = push.createdAt
+//            )
+//          )
+//      }
+//    } yield result
 
   def sendPushWhenChangedStatus(newStatus: UserTask.Status, task: UserTask): Task[Unit] =
     for {
@@ -95,6 +106,7 @@ class PushServiceImpl(taskDao: TaskDao, pushDao: PushDao, userDao: UserDao) exte
         )
       )
     } yield ()
+
 }
 
 object PushServiceImpl {

@@ -29,7 +29,7 @@ object PushDaoImpl {
   val live: URLayer[Transactor[Task], PushDao] =
     ZLayer.fromFunction(new PushDaoImpl(_))
 
-  private val limit = 10
+  private val limit = 15
 
   object Sql extends DoobieMapping {
 

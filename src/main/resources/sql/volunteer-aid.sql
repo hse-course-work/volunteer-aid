@@ -53,27 +53,12 @@ CREATE TABLE "pushes" (
 );
 
 
-------
-
-
-CREATE TABLE "task_photos" (
- “id” bigserial PRIMARY KEY,
- "task_id" bigint,
- "photo_url" text
-);
-
-
-CREATE TABLE "comments" (
+CREATE TABLE "reports" (
  "id" bigserial PRIMARY KEY,
+ "task_id_for" bigint,
  "author_id" bigint,
- "text" text,
- "task_id" bigint,
- "created_at" timestamp
+ "comment" text,
+ "photo_data" BYTEA
 );
 
-
-CREATE TABLE "comment_photos" (
- “id” bigserial PRIMARY KEY,
- "comment_id" bigint,
- "photo_url" text
-);
+------

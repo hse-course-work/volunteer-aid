@@ -2,13 +2,19 @@ package api
 
 import api.push.PushRouter
 import api.rating.RatingRouter
+import api.report.ReportRouter
 import api.task.TaskRouter
 import api.user.UserRouter
 import models.responses.UserResponse
 import sttp.tapir.ztapir.ZServerEndpoint
 import zio.{&, Task, URLayer, ZLayer}
 
-class MainRouter(userRouter: UserRouter, taskRouter: TaskRouter, ratingRouter: RatingRouter, pushRouter: PushRouter) {
+class MainRouter(
+    userRouter: UserRouter,
+    taskRouter: TaskRouter,
+    ratingRouter: RatingRouter,
+    pushRouter: PushRouter,
+    reportRouter: ReportRouter) {
 
   // user
   def getUser: ZServerEndpoint[Any, Any] =
@@ -23,7 +29,7 @@ class MainRouter(userRouter: UserRouter, taskRouter: TaskRouter, ratingRouter: R
   def updateProfile: ZServerEndpoint[Any, Any] =
     userRouter.updateUserProfile
 
-  def deleteUser:  ZServerEndpoint[Any, Any] =
+  def deleteUser: ZServerEndpoint[Any, Any] =
     userRouter.deleteProfile
 
   // tasks
@@ -81,12 +87,24 @@ class MainRouter(userRouter: UserRouter, taskRouter: TaskRouter, ratingRouter: R
   def getPushesForUser: ZServerEndpoint[Any, Any] =
     pushRouter.getPushesForUser
 
+  // report
 
+  def addUserReport: ZServerEndpoint[Any, Any] =
+    reportRouter.addUserReport
+
+  def deleteUserReport: ZServerEndpoint[Any, Any] =
+    reportRouter.deleteUserReport
+
+  def getReportForUser: ZServerEndpoint[Any, Any] =
+    reportRouter.getReportForUser
+
+  def getTasksReportForUser: ZServerEndpoint[Any, Any] =
+    reportRouter.getTasksReportForUser
 }
 
 object MainRouter {
 
-  val live: URLayer[UserRouter & TaskRouter & RatingRouter & PushRouter, MainRouter] =
-    ZLayer.fromFunction(new MainRouter(_, _, _, _))
+  val live: URLayer[UserRouter & TaskRouter & RatingRouter & PushRouter & ReportRouter, MainRouter] =
+    ZLayer.fromFunction(new MainRouter(_, _, _, _, _))
 
 }

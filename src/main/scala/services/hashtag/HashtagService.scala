@@ -11,6 +11,6 @@ trait HashtagService {
 
   def deleteHashtag(hashtag: Hashtag): IO[TaskException, Unit]
 
-  def getTasksByHashtags(hashtags: Seq[String]): IO[TaskException, Seq[UserTask]]
+  def getTasksByHashtags(hashtags: Seq[String]): IO[TaskException, Map[String, Seq[UserTask]]]
 
 }

@@ -3,7 +3,7 @@ package api.task
 import models.UserId
 import models.dao.task.UserTask.Status
 import models.requests.task.HashtagRequest
-import models.responses.{TaskResponse, UserResponse}
+import models.responses.{SearchResponse, TaskResponse, UserResponse}
 import services.hashtag.HashtagService
 import services.task.TaskService
 import services.task.TaskService.TaskException._
@@ -121,7 +121,7 @@ class TaskRouter(taskService: TaskService, hashtagService: HashtagService) exten
     getTasksByTag.zServerLogic(request =>
       hashtagService
         .getTasksByHashtags(request.tags)
-        .map(result => (StatusCode.Ok, result.map(TaskResponse.convert).toList))
+        .map(result => (StatusCode.Ok, SearchResponse.toResponse(result)))
         .catchAll {
           case e: BadRequest => ZIO.fail((StatusCode.BadRequest, e.message))
           case e => ZIO.fail((StatusCode.InternalServerError, e.message))

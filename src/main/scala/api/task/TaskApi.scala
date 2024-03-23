@@ -1,7 +1,7 @@
 package api.task
 
 import models.requests.task.{HashtagRequest, NewTaskRequest, SearchByTagRequest, UpdateTaskStatus}
-import models.responses.TaskResponse
+import models.responses.{SearchResponse, TaskResponse}
 import sttp.tapir.generic.auto.schemaForCaseClass
 import sttp.tapir.json.circe.jsonBody
 import sttp.tapir.ztapir._
@@ -93,7 +93,7 @@ trait TaskApi {
       .in(defaultRoute / "get-by-tags")
       .in(jsonBody[SearchByTagRequest])
       .out(statusCode)
-      .out(jsonBody[List[TaskResponse]])
+      .out(jsonBody[SearchResponse])
       .errorOut(statusCode)
       .errorOut(stringBody)
 

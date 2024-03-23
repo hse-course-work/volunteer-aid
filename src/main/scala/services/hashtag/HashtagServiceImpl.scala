@@ -33,20 +33,24 @@ class HashtagServiceImpl(hashtagDao: HashtagDao, taskDao: TaskDao) extends Hasht
       }
 
 
-  def getTasksByHashtags(hashtags: Seq[String]): IO[TaskException, Seq[UserTask]] =
+  def getTasksByHashtags(hashtags: Seq[String]): IO[TaskException, Map[String, Seq[UserTask]]] =
     for {
       tags <- ZIO.attempt(hashtags.map(Tag.withName))
         .catchAll(e => ZIO.fail(BadRequest(e)))
       tasksWithTag <- ZIO.foreach(tags)(tag =>
         hashtagDao.getByTag(tag)
           .catchAll(e => ZIO.fail(InternalError(e)))
+          .map(tasks => tag.name -> tasks.map(_.taskId))
       )
-      taskIds = tasksWithTag.flatten.map(_.taskId)
-      tasks <- ZIO.foreach(taskIds)(id =>
-        taskDao.get(id)
-          .catchAll(e=> ZIO.fail(InternalError(e)))
-      )
-    } yield tasks.filter(_.nonEmpty).map(_.get)
+      taskIdsByHashtag = tasksWithTag.toMap
+      tasksByHashtags <- ZIO.foreach(taskIdsByHashtag) { case (tag, taskIds) =>
+        ZIO.foreach(taskIds)(id =>
+          taskDao.get(id)
+            .catchAll(e => ZIO.fail(InternalError(e)))
+        )
+        .map(tasks => tag -> tasks.filter(_.nonEmpty).map(_.get))
+      }
+    } yield tasksByHashtags
 
 }
 

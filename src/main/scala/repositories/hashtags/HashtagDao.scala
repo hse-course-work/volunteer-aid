@@ -10,6 +10,6 @@ trait HashtagDao {
 
   def deleteHashtag(hashtag: Hashtag): Task[Unit]
 
-  def getByTag(tag: Tag): Task[Seq[Hashtag]]
+  def getByTag(tag: Tag, x: Double, y: Double, radius: Int): Task[Seq[Hashtag]]
 
 }

@@ -10,6 +10,7 @@ import zio.interop.catz._
 import zio.{Task, URLayer, ZLayer}
 
 class HashtagDaoImpl(master: Transactor[Task]) extends HashtagDao {
+
   def addHashtag(hashtag: Hashtag): Task[Unit] =
     Sql
       .insert(hashtag)
@@ -22,9 +23,9 @@ class HashtagDaoImpl(master: Transactor[Task]) extends HashtagDao {
       .transact(master)
       .unit
 
-  def getByTag(tag: Tag): Task[Seq[Hashtag]] =
+  def getByTag(tag: Tag, userX: Double, userY: Double, radius: Int): Task[Seq[Hashtag]] =
     Sql
-      .getByTag(tag)
+      .getByTag(tag, userX, userY, radius)
       .transact(master)
 
 }
@@ -44,30 +45,32 @@ object HashtagDaoImpl {
               ${hashtag.value.name},
               ${hashtag.taskId}
             )
-         """
-        .update
-        .run
+         """.update.run
 
     def delete(hashtag: Hashtag): ConnectionIO[Int] =
       sql"""
             DELETE FROM task_hashtags
             WHERE task_id = ${hashtag.taskId}
             AND value = ${hashtag.value.name}
-         """
-        .update
-        .run
+         """.update.run
 
-    def getByTag(tag: Tag): ConnectionIO[Seq[Hashtag]] =
+    def getByTag(tag: Tag, userX: Double, userY: Double, radius: Int): ConnectionIO[Seq[Hashtag]] =
       sql"""
             SELECT * FROM task_hashtags
-            WHERE value = ${tag.name}
+            WHERE value = ${tag.name} AND 
+              (
+                  6371000 * ACOS(
+                    SIN(RADIANS(x_coord)) * SIN(RADIANS($userX)) +
+                    COS(RADIANS(x_coord)) * COS(RADIANS($userX)) * COS(RADIANS($userY) - RADIANS(y_coord))
+                  )
+              ) <= $radius
          """
         .query[Hashtag]
         .to[Seq]
 
     implicit val readHashtag: Read[Hashtag] =
-      Read[(String, Long)].map {
-        case (value, id) => new Hashtag(Tag.withName(value), id)
+      Read[(String, Long)].map { case (value, id) =>
+        new Hashtag(Tag.withName(value), id)
       }
   }
 

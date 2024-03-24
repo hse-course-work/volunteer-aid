@@ -120,7 +120,7 @@ class TaskRouter(taskService: TaskService, hashtagService: HashtagService) exten
   def searchByTag: ZServerEndpoint[Any, Any] =
     getTasksByTag.zServerLogic(request =>
       hashtagService
-        .getTasksByHashtags(request.tags)
+        .getTasksByHashtags(request)
         .map(result => (StatusCode.Ok, SearchResponse.toResponse(result)))
         .catchAll {
           case e: BadRequest => ZIO.fail((StatusCode.BadRequest, e.message))

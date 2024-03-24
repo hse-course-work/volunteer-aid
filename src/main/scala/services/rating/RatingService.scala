@@ -12,7 +12,7 @@ trait RatingService {
 
   def deleteLike(userId: Long, taskId: Long): IO[RatingException, Unit]
 
-  def getLikesBy(filter: Filter): IO[RatingException, Seq[Like]]
+  def getLikesBy(filter: Filter): IO[RatingException, Seq[(Like, String, String)]]
 
 }
 
@@ -26,6 +26,10 @@ object RatingService {
 
     case class InternalError(e: Throwable) extends RatingException {
       override def message: String = s"Something went wrong, ${e.getMessage}"
+    }
+
+    case class ServerError(e: String) extends RatingException {
+      override def message: String = s"Something went wrong, ${e}"
     }
 
   }

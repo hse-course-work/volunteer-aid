@@ -18,7 +18,12 @@ class RatingRouter(ratingService: RatingService) extends RatingApi {
         .flatMap(filter =>
           ratingService
             .getLikesBy(filter)
-            .map(likes => (StatusCode.Ok, LikesResponse(likes.map(LikesResponse.covertFromDao).toList)))
+            .map(likesWithInfo =>
+              (
+                StatusCode.Ok,
+                LikesResponse(likesWithInfo.map(e => LikesResponse.covertFromDao(e._1, e._2, e._3)).toList)
+              )
+            )
             .catchAll { case e: InternalError =>
               ZIO.fail((StatusCode.InternalServerError, e.message))
             }

@@ -54,7 +54,7 @@ object LikeDaoImpl {
 
     private val baseSelect: Fragment =
       sql"""
-            SELECT id, user_id_to, task_id, message, created_at
+            SELECT id, user_id_to, task_id, created_at
             FROM likes WHERE
          """
 
@@ -75,11 +75,10 @@ object LikeDaoImpl {
     def putLike(newLike: Like): ConnectionIO[Int] =
       sql"""
             INSERT INTO likes (
-              user_id_to, task_id, message, created_at
+              user_id_to, task_id, created_at
             ) VALUES (
               ${newLike.userIdLikeFor},
               ${newLike.taskId},
-              ${newLike.message},
               ${newLike.createdAt}
             )
          """
@@ -96,9 +95,9 @@ object LikeDaoImpl {
   object Mapping extends DoobieMapping {
 
     implicit val readLike: Read[Like] =
-      Read[(Long, Long, Long, String, DateTime)].map {
-        case (id, userFor, taskId, message, createdAt) =>
-          Like(id, userFor, taskId, message, createdAt)
+      Read[(Long, Long, Long, DateTime)].map {
+        case (id, userFor, taskId, createdAt) =>
+          Like(id, userFor, taskId, createdAt)
       }
 
   }

@@ -48,7 +48,7 @@ object ReportDaoImpl {
            INSERT INTO reports (task_id_for, author_id, comment, photo_data)
            VALUES (
               ${report.taskId},
-              ${report.userId}
+              ${report.userId},
               ${report.comment},
               ${report.photo}
            )

@@ -134,9 +134,9 @@ object TaskDaoImpl {
     def getByUser(id: Long): ConnectionIO[Seq[UserTask]] =
       sql"""
             SELECT id, name, creator_id, description, status, created_at, involved_count, x_coord, y_coord
-                  FROM tasks WHERE id IN (
-               SELECT task_id FROM taken_tasks WHERE user_id = $id
-            ) AND status != ${Status.Delete.name}'
+                  FROM tasks t WHERE t.id IN (
+               SELECT task_id FROM taken_tasks tt WHERE tt.user_id = $id
+            ) AND t.status != ${Status.Delete.name}'
          """
         .query[UserTask]
         .to[Seq]

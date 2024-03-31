@@ -29,7 +29,7 @@ trait ReportApi {
   protected val getUserReport =
     endpoint
       .get
-      .in(defaultRoute / "user-report" / path[Int](name = "author-id") / path[Int](name = "task-id"))
+      .in(defaultRoute / "user-report" / path[Long](name = "author-id") / path[Long](name = "task-id"))
       .out(statusCode)
       .out(jsonBody[ReportResponse])
       .errorOut(statusCode)

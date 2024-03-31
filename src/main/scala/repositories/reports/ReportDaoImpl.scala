@@ -63,9 +63,10 @@ object ReportDaoImpl {
 
     def getUserReport(userId: Long, taskId: Long): ConnectionIO[Option[Report]] =
       sql"""
-            SELECT (id, task_id_for, author_id, comment, photo_data)
+            SELECT id, task_id_for, author_id, comment, photo_data
             FROM reports
             WHERE author_id = $userId AND task_id_for = $taskId
+            ORDER BY id DESC LIMIT 1
          """
         .query[Report]
         .option

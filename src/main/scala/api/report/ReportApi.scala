@@ -19,7 +19,7 @@ trait ReportApi {
 
   protected val addReport =
     endpoint
-      .delete
+      .post
       .in(defaultRoute / "add")
       .in(jsonBody[AddReportRequest])
       .out(statusCode)

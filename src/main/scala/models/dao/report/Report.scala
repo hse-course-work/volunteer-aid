@@ -5,4 +5,4 @@ case class Report(
     taskIdFor: Long,
     reportAuthorId: Long,
     comment: Option[String],
-    photoData: Option[List[Byte]])
+    photoData: Option[String])

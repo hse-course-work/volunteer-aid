@@ -57,7 +57,7 @@ CREATE TABLE "reports" (
  "task_id_for" bigint,
  "author_id" bigint,
  "comment" text,
- "photo_data" BYTEA
+ "photo_data" text
 );
 
 ------

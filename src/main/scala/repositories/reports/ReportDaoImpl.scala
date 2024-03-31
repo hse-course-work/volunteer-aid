@@ -85,7 +85,7 @@ object ReportDaoImpl {
   object Mapping extends DoobieMapping {
 
     implicit val readReport: Read[Report] =
-      Read[(Long, Long, Long, Option[String], Option[List[Byte]])].map {
+      Read[(Long, Long, Long, Option[String], Option[String])].map {
         case (id, taskId, userId, comment, photoData) =>
           Report(id, taskId, userId, comment, photoData)
       }

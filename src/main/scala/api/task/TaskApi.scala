@@ -116,7 +116,7 @@ trait TaskApi {
 
   protected val removeTakenTaskForWork =
     endpoint
-      .get
+      .delete
       .in(defaultRoute / "remove" / path[Long]("user_id") / path[Long]("task_id"))
       .out(statusCode)
       .errorOut(stringBody)

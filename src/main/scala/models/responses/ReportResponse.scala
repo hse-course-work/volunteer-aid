@@ -9,7 +9,7 @@ case class ReportResponse(
     taskIdFor: Long,
     reportAuthorId: Long,
     comment: Option[String],
-    photoData: Option[List[Byte]])
+    photoData: Option[String])
 
 object ReportResponse {
   def toResponse(report: Report): ReportResponse =

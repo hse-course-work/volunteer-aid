@@ -58,9 +58,9 @@ class PushServiceImpl(taskDao: TaskDao, pushDao: PushDao, userDao: UserDao) exte
           val message = newStatus match {
             case Status.Delete => s"Пользователь ${author.get.login} удалил задачу '${task.name}'"
             case Status.Closed =>
-              s"Пользователь ${author.get.login} закрыл задачу '${task.name}. Возможна она уже решена или больше не требует решения"
+              s"Пользователь ${author.get.login} закрыл задачу '${task.name}'. Возможна она уже решена или больше не требует решения"
             case Status.Active =>
-              s"Пользователь ${author.get.login} открыл задачу '${task.name}. Автор считает, что задача снова актуальна"
+              s"Пользователь ${author.get.login} открыл задачу '${task.name}'. Автор считает, что задача снова актуальна"
           }
           pushDao.addPushToUser(
             Push(

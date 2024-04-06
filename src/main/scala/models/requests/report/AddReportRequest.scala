@@ -7,5 +7,5 @@ case class AddReportRequest(
     taskId: Long,
     userId: Long,
     comment: Option[String],
-    photo: Option[List[Byte]])
+    photo: Option[String])
 

@@ -73,7 +73,7 @@ object ReportDaoImpl {
 
     def getTasksReports(taskId: Long): ConnectionIO[Seq[Report]] =
       sql"""
-           SELECT (id, author_id, task_id_for, comment, photo_data)
+           SELECT id, author_id, task_id_for, comment, photo_data
            FROM reports
            WHERE task_id_for = $taskId
          """

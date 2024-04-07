@@ -1,12 +1,14 @@
 package services.task
 
 import models.UserId
+import models.dao.hashtag.Hashtag
 import models.dao.task.UserTask
 import models.dao.task.UserTask.Status
 import models.dao.user.User
 import models.requests.task.NewTaskRequest
 import repositories.task.TaskDao
 import repositories.task.TaskDao.Filter
+import services.hashtag.HashtagService
 import services.push.PushService
 import services.task.TaskService.TaskException
 import services.task.TaskService.TaskException._
@@ -15,7 +17,7 @@ import services.user.UserService.UserException
 import services.user.UserService.UserException.UserNotFound
 import zio.{&, IO, Task, UIO, URIO, URLayer, ZIO, ZLayer}
 
-class TaskServiceImpl(taskDao: TaskDao, userService: UserService, pushService: PushService) extends TaskService {
+class TaskServiceImpl(taskDao: TaskDao, userService: UserService, pushService: PushService, tagService: HashtagService) extends TaskService {
 
   def createTask(task: NewTaskRequest): IO[TaskException, UserTask] =
     for {
@@ -31,7 +33,9 @@ class TaskServiceImpl(taskDao: TaskDao, userService: UserService, pushService: P
       tasks <- taskDao
         .getBy(Filter.ByCreator(task.creatorId))
         .catchAll(e => ZIO.fail(InternalError(e)))
-    } yield tasks.maxBy(_.createdAt)
+      resultTask = tasks.maxBy(_.createdAt)
+      _ <- tagService.addHashtag(Hashtag(Hashtag.Tag.withName(task.tag), resultTask.id))
+    } yield resultTask
 
   private def checkCreatorExist(userId: Long): IO[TaskException, User] =
     userService
@@ -142,7 +146,7 @@ class TaskServiceImpl(taskDao: TaskDao, userService: UserService, pushService: P
 
 object TaskServiceImpl {
 
-  val live: URLayer[TaskDao & UserService & PushService, TaskService] =
-    ZLayer.fromFunction(new TaskServiceImpl(_, _, _))
+  val live: URLayer[TaskDao & UserService & PushService & HashtagService, TaskService] =
+    ZLayer.fromFunction(new TaskServiceImpl(_, _, _, _))
 
 }

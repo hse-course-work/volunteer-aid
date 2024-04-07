@@ -13,7 +13,8 @@ case class NewTaskRequest(
     description: String,
     involvedCount: Int,
     x: Double,
-    y: Double)
+    y: Double,
+    tag: String)
 
 object NewTaskRequest {
   import utils.DateTimeJsonCodec._

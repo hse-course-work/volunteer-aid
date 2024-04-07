@@ -56,12 +56,13 @@ object HashtagDaoImpl {
 
     def getByTag(tag: Tag, userX: Double, userY: Double, radius: Int): ConnectionIO[Seq[Hashtag]] =
       sql"""
-            SELECT * FROM task_hashtags
-            WHERE value = ${tag.name} AND 
+            SELECT * FROM task_hashtags h
+            JOIN tasks t ON t.id = h.task_id
+            WHERE h.value = ${tag.name} AND
               (
                   6371000 * ACOS(
-                    SIN(RADIANS(x_coord)) * SIN(RADIANS($userX)) +
-                    COS(RADIANS(x_coord)) * COS(RADIANS($userX)) * COS(RADIANS($userY) - RADIANS(y_coord))
+                    SIN(RADIANS(t.x_coord)) * SIN(RADIANS($userX)) +
+                    COS(RADIANS(t.x_coord)) * COS(RADIANS($userX)) * COS(RADIANS($userY) - RADIANS(t.y_coord))
                   )
               ) <= $radius
          """

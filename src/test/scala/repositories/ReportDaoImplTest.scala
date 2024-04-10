@@ -3,7 +3,7 @@ package repositories
 import doobie.util.transactor.Transactor
 import utils.{InitSchema, PostgresTestContainer}
 import zio.{Scope, Task, ZIO, ZLayer}
-import zio.test.{Spec, TestEnvironment, ZIOSpecDefault}
+import zio.test.{Spec, TestEnvironment, ZIOSpecDefault, assertTrue}
 import doobie.implicits._
 import repositories.reports.{ReportDao, ReportDaoImpl}
 import zio.interop.catz._
@@ -11,8 +11,8 @@ import zio.test.TestAspect.{after, before, sequential}
 
 object ReportDaoImplTest extends ZIOSpecDefault {
   def spec: Spec[TestEnvironment with Scope, Any] =
-    (suite("")(
-
+    (suite("ReportDaoImpl")(
+      creatingTable
     ) @@ before(initTable) @@ after(cleanTable) @@ sequential)
       .provideLayer(makeLayer)
 
@@ -25,7 +25,7 @@ object ReportDaoImplTest extends ZIOSpecDefault {
   def initTable =
     ZIO.serviceWithZIO[Transactor[Task]] { xa =>
       for {
-        _ <- InitSchema("/reports.sql", xa)
+        _ <- InitSchema("/report.sql", xa)
         _ = println("схема готова!")
       } yield ()
     }
@@ -36,5 +36,21 @@ object ReportDaoImplTest extends ZIOSpecDefault {
     PostgresTestContainer.xa,
     ReportDaoImpl.live
   )
+
+  def creatingTable = {
+    test("check table exists") {
+      for {
+        xa <- ZIO.service[Transactor[Task]]
+        result <- sql"""
+                       SELECT table_name
+                       FROM information_schema.tables
+                       WHERE table_schema = 'public' AND table_name LIKE 'reports';
+                  """
+          .query[String]
+          .unique
+          .transact(xa)
+      } yield assertTrue(result == "reports")
+    }
+  }
 
 }

@@ -25,7 +25,7 @@ CREATE TABLE "tasks"
 CREATE TABLE "task_hashtags" (
  "value" text,
  "task_id" bigint,
- UNIQUE('value', 'task_id')
+ UNIQUE("value", "task_id")
 );
 
 CREATE TABLE "taken_tasks" (

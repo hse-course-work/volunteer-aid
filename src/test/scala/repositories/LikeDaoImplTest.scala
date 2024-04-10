@@ -3,7 +3,7 @@ package repositories
 import doobie.util.transactor.Transactor
 import utils.{InitSchema, PostgresTestContainer}
 import zio.{Scope, Task, ZIO, ZLayer}
-import zio.test.{Spec, TestEnvironment, ZIOSpecDefault}
+import zio.test.{Spec, TestEnvironment, ZIOSpecDefault, assertTrue}
 import doobie.implicits._
 import repositories.rating.{LikeDao, LikeDaoImpl}
 import zio.interop.catz._
@@ -11,8 +11,8 @@ import zio.test.TestAspect.{after, before, sequential}
 object LikeDaoImplTest extends ZIOSpecDefault {
 
   def spec: Spec[TestEnvironment with Scope, Any] =
-    (suite("")(
-
+    (suite("LikeDaoImpl")(
+      creatingTable
     ) @@ before(initTable) @@ after(cleanTable) @@ sequential)
       .provideLayer(makeLayer)
 
@@ -36,5 +36,22 @@ object LikeDaoImplTest extends ZIOSpecDefault {
     PostgresTestContainer.xa,
     LikeDaoImpl.live
   )
+
+  def creatingTable = {
+    test("check table exists") {
+      for {
+        xa <- ZIO.service[Transactor[Task]]
+        result <- sql"""
+                       SELECT table_name
+                       FROM information_schema.tables
+                       WHERE table_schema = 'public' AND table_name LIKE 'likes';
+                  """
+          .query[String]
+          .unique
+          .transact(xa)
+      } yield assertTrue(result == "likes")
+    }
+  }
+
 
 }

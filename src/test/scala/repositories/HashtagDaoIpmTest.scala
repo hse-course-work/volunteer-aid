@@ -16,7 +16,9 @@ object HashtagDaoIpmTest extends ZIOSpecDefault {
 
   def spec: Spec[TestEnvironment with Scope, Any] =
     (suite("HashtagDaoIpm")(
-      creatingTable
+      creatingTable,
+      addTag,
+      deleteTag
     ) @@ before(initTable) @@ after(cleanTable) @@ sequential)
       .provideLayer(makeLayer)
 
@@ -73,7 +75,7 @@ object HashtagDaoIpmTest extends ZIOSpecDefault {
     test("successful delete hashtag to task") {
       assertZIO(
         ZIO.serviceWithZIO[HashtagDao](
-          _.addHashtag(
+          _.deleteHashtag(
             Hashtag(Tag.Animal, 1)
           )
         )

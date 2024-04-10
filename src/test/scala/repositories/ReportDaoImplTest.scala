@@ -3,16 +3,21 @@ package repositories
 import doobie.util.transactor.Transactor
 import utils.{InitSchema, PostgresTestContainer}
 import zio.{Scope, Task, ZIO, ZLayer}
-import zio.test.{Spec, TestEnvironment, ZIOSpecDefault, assertTrue}
+import zio.test.{Spec, TestEnvironment, ZIOSpecDefault, assertTrue, assertZIO}
 import doobie.implicits._
+import models.dao.report.Report
+import models.requests.report.AddReportRequest
 import repositories.reports.{ReportDao, ReportDaoImpl}
 import zio.interop.catz._
+import zio.test.Assertion.{equalTo, isUnit}
 import zio.test.TestAspect.{after, before, sequential}
 
 object ReportDaoImplTest extends ZIOSpecDefault {
   def spec: Spec[TestEnvironment with Scope, Any] =
     (suite("ReportDaoImpl")(
-      creatingTable
+      creatingTable,
+      addReport,
+      getReportByUser
     ) @@ before(initTable) @@ after(cleanTable) @@ sequential)
       .provideLayer(makeLayer)
 
@@ -50,6 +55,35 @@ object ReportDaoImplTest extends ZIOSpecDefault {
           .unique
           .transact(xa)
       } yield assertTrue(result == "reports")
+    }
+  }
+
+  def addReport = {
+    test("successful add report to user for task") {
+      assertZIO(
+        ZIO.serviceWithZIO[ReportDao](
+          _.addReport(
+            AddReportRequest(1, 1, Some("test"), None)
+          )
+        )
+      )(isUnit)
+    }
+  }
+
+  def getReportByUser = {
+    test("successful get user reports by task") {
+      assertZIO(
+        ZIO.serviceWithZIO[ReportDao](
+          _.getReportForUser(
+            userId = 1,
+            taskId = 1
+          )
+        )
+      )(
+        equalTo(
+          Some(Report(1, 1, 1, Some("test"), None))
+        )
+      )
     }
   }
 

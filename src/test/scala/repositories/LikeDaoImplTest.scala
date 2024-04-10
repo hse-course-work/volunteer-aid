@@ -3,16 +3,22 @@ package repositories
 import doobie.util.transactor.Transactor
 import utils.{InitSchema, PostgresTestContainer}
 import zio.{Scope, Task, ZIO, ZLayer}
-import zio.test.{Spec, TestEnvironment, ZIOSpecDefault, assertTrue}
+import zio.test.{Spec, TestEnvironment, ZIOSpecDefault, assertTrue, assertZIO}
 import doobie.implicits._
+import models.dao.rating.Like
+import org.joda.time.DateTime
 import repositories.rating.{LikeDao, LikeDaoImpl}
 import zio.interop.catz._
+import zio.test.Assertion.{equalTo, isUnit}
 import zio.test.TestAspect.{after, before, sequential}
 object LikeDaoImplTest extends ZIOSpecDefault {
 
   def spec: Spec[TestEnvironment with Scope, Any] =
     (suite("LikeDaoImpl")(
-      creatingTable
+      creatingTable,
+      addLike,
+      deleteLikeForUser,
+      getUserLikeById
     ) @@ before(initTable) @@ after(cleanTable) @@ sequential)
       .provideLayer(makeLayer)
 
@@ -53,5 +59,44 @@ object LikeDaoImplTest extends ZIOSpecDefault {
     }
   }
 
+  def addLike = {
+    test("successful add like to user for like") {
+      assertZIO(
+        ZIO.serviceWithZIO[LikeDao](
+          _.createLike(
+            Like(1, 1, 1, DateTime.parse("2024-04-01"))
+          )
+        )
+      )(isUnit)
+    }
+  }
+
+  def deleteLikeForUser = {
+    test("successful delete like from user by task") {
+      assertZIO(
+        ZIO.serviceWithZIO[LikeDao](
+          _.deleteLike(
+            1
+          )
+        )
+      )(isUnit)
+    }
+  }
+
+  def getUserLikeById = {
+    test("successful get likes for user by task") {
+      assertZIO(
+        ZIO.serviceWithZIO[LikeDao](
+          _.get(
+            userId = 1, taskId = 1
+          )
+        )
+      )(
+        equalTo(
+          Some(Like(1, 1, 1, DateTime.parse("2024-04-01")))
+        )
+      )
+    }
+  }
 
 }

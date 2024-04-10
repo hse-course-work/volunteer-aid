@@ -127,12 +127,19 @@ class TaskServiceImpl(taskDao: TaskDao, userService: UserService, pushService: P
 
   def takeTaskInWork(userId: Long, taskId: Long): Task[Unit] =
     for {
-      taken <- taskDao.getTakenTasks(userId)
-      _ <- ZIO.when(!taken.map(_.id).contains(taskId))(
-        taskDao.takeTaskInWork(userId, taskId).as(
-          pushService.sendPushWhenUserTakeYourTask(userId, taken.find(_.id == taskId).get)
-        )
-      )
+      task <- taskDao.get(taskId)
+      _ <- task match {
+        case Some(t) if t.creatorId != userId =>
+          for {
+            taken <- taskDao.getTakenTasks(userId)
+            _ <- ZIO.when(!taken.map(_.id).contains(taskId))(
+              taskDao.takeTaskInWork(userId, taskId).as(
+                pushService.sendPushWhenUserTakeYourTask(userId, taken.find(_.id == taskId).get)
+              )
+            )
+          } yield ()
+        case _ => ZIO.unit
+      }
     } yield ()
 
   def removeFromTaken(userId: Long, taskId: Long): Task[Unit] =

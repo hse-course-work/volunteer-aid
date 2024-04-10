@@ -134,7 +134,7 @@ class TaskServiceImpl(taskDao: TaskDao, userService: UserService, pushService: P
             taken <- taskDao.getTakenTasks(userId)
             _ <- ZIO.when(!taken.map(_.id).contains(taskId))(
               taskDao.takeTaskInWork(userId, taskId).as(
-                pushService.sendPushWhenUserTakeYourTask(userId, taken.find(_.id == taskId).get)
+                pushService.sendPushWhenUserTakeYourTask(userId, task.get)
               )
             )
           } yield ()

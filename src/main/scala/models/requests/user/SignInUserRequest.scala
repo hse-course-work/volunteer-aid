@@ -10,7 +10,7 @@ case class SignInUserRequest(
     password: String,
     profileDescription: Option[String],
     login: String,
-    photoData: Option[List[Byte]])
+    photoData: Option[String])
 
 object SignInUserRequest {
 

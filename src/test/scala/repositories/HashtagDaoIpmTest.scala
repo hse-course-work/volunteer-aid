@@ -3,10 +3,13 @@ package repositories
 import doobie.util.transactor.Transactor
 import utils.{InitSchema, PostgresTestContainer}
 import zio.{Scope, Task, ZIO, ZLayer}
-import zio.test.{Spec, TestEnvironment, ZIOSpecDefault, assertTrue}
+import zio.test.{assertTrue, assertZIO, Spec, TestEnvironment, ZIOSpecDefault}
 import doobie.implicits._
+import models.dao.hashtag.Hashtag
+import models.dao.hashtag.Hashtag.Tag
 import repositories.hashtags.{HashtagDao, HashtagDaoImpl}
 import zio.interop.catz._
+import zio.test.Assertion.isUnit
 import zio.test.TestAspect.{after, before, sequential}
 
 object HashtagDaoIpmTest extends ZIOSpecDefault {
@@ -51,6 +54,30 @@ object HashtagDaoIpmTest extends ZIOSpecDefault {
           .unique
           .transact(xa)
       } yield assertTrue(result == "task_hashtags")
+    }
+  }
+
+  def addTag = {
+    test("successful add hashtag to task") {
+      assertZIO(
+        ZIO.serviceWithZIO[HashtagDao](
+          _.addHashtag(
+            Hashtag(Tag.Animal, 1)
+          )
+        )
+      )(isUnit)
+    }
+  }
+
+  def deleteTag = {
+    test("successful delete hashtag to task") {
+      assertZIO(
+        ZIO.serviceWithZIO[HashtagDao](
+          _.addHashtag(
+            Hashtag(Tag.Animal, 1)
+          )
+        )
+      )(isUnit)
     }
   }
 

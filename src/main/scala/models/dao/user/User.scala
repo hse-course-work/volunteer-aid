@@ -8,7 +8,7 @@ case class User(
     hashPassword: Password,
     profileDescription: Option[Description],
     login: String,
-    photoData: Option[List[Byte]])
+    photoData: Option[String])
 
 object User {
 
@@ -17,7 +17,7 @@ object User {
       hashPassword: Password,
       profileDescription: Option[Description],
       login: String,
-      photoData: Option[List[Byte]]): User =
+      photoData: Option[String]): User =
     new User(
       id = DefaultId,
       email = email,

@@ -143,7 +143,7 @@ object UserDaoImpl {
       Put[String].contramap(description => description.map(Description.unwrap).getOrElse(""))
 
     implicit val getUser: Read[User] =
-      Read[(Long, String, String, String, Option[String], Option[List[Byte]])].map {
+      Read[(Long, String, String, String, Option[String], Option[String])].map {
         case (id, email, password, login, description, photo) =>
           User(UserId(id), Email(email), Password(password), description.map(Description(_)), login, photo)
       }

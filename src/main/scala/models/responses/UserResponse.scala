@@ -5,7 +5,7 @@ import models.{Description, Email, UserId}
 import models.dao.user.User
 
 @JsonCodec
-case class UserResponse(id: Long, email: String, profileDescription: Option[String], login: String, photoData: Option[List[Byte]])
+case class UserResponse(id: Long, email: String, profileDescription: Option[String], login: String, photoData: Option[String])
 
 object UserResponse {
 

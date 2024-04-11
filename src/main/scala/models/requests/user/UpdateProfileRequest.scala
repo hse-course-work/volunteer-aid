@@ -8,3 +8,4 @@ case class UpdateProfileRequest(
     profileDescription: Option[String],
     login: Option[String],
     photoData: Option[String])
+

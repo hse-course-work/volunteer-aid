@@ -55,7 +55,7 @@ object LikeDaoImpl {
     private val baseSelect: Fragment =
       sql"""
             SELECT id, user_id_to, task_id, created_at
-            FROM likes WHERE user
+            FROM likes WHERE
          """
 
     private def getUsersLike(userId: Long): ConnectionIO[Seq[Like]] =
